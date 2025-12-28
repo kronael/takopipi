@@ -1,0 +1,6 @@
+[project]
+name = "takopi-refresh"
+version = "0.1.0"
+
+[project.entry-points."takopi.command_backends"]
+refresh = "refresh_backend:BACKEND"

@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e
+
+INSTANCE=${1:-takopipi_krons}
+CONFIG="/srv/app/cfg/${INSTANCE}.toml"
+
+if [ ! -f "$CONFIG" ]
+then
+  echo "config not found: $CONFIG"
+  exit 1
+fi
+
+mkdir -p /root/.takopi
+cp "$CONFIG" /root/.takopi/takopi.toml
+
+# auto-discover web apps from /web
+config=/root/.takopi/takopi.toml
+sed -i '/^\[projects\./,$d' "$config"
+
+for app in /web/*/
+do
+  [ -d "$app" ] || continue
+  name=$(basename "$app")
+  [ "$name" = "node_modules" ] && continue
+  ln -sf /srv/app/cfg/CLAUDE.md "$app/CLAUDE.md"
+
+  cat >> "$config" <<EOF
+
+[projects.$name]
+path = "$app"
+default_engine = "claude"
+EOF
+done
+
+rm -f /root/.takopi/takopi.lock
+
+# --- run both ---
+takopi claude &
+TAKOPI=$!
+
+(while true
+do
+  npx vite --host 0.0.0.0 --port 49165
+  sleep 1
+done) &
+VITE=$!
+
+trap 'kill $TAKOPI $VITE 2>/dev/null; wait' INT TERM
+wait $TAKOPI
+kill $VITE 2>/dev/null
+wait

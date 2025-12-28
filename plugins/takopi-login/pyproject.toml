@@ -1,0 +1,6 @@
+[project]
+name = "takopi-login"
+version = "0.1.0"
+
+[project.entry-points."takopi.command_backends"]
+login = "login_backend:BACKEND"

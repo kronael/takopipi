@@ -1,0 +1,6 @@
+[project]
+name = "takopi-demiurg"
+version = "0.1.0"
+
+[project.entry-points."takopi.command_backends"]
+demiurg = "demiurg_backend:BACKEND"

@@ -1,0 +1,36 @@
+transport = "telegram"
+
+# assistant: ongoing chat with auto-resume
+# workspace: forum topics bound to repos/branches
+# handoff: reply-to-continue with terminal resume
+workflow = "assistant"
+
+default_engine = "claude"
+
+[transports.telegram]
+bot_token = "YOUR_BOT_TOKEN"
+chat_id = 0
+
+# projects are auto-discovered from /workspace on startup
+
+[claude]
+allowed_tools = [
+  "Bash",
+  "Read",
+  "Edit",
+  "Write",
+  "Glob",
+  "Grep",
+  "WebSearch",
+  "WebFetch",
+]
+
+[plugins]
+enabled = [
+  "takopi",
+  "takopi-reload",
+  "takopi-demiurg",
+  "takopi-info",
+  "takopi-refresh",
+  "takopi-login",
+]
