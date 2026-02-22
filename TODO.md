@@ -12,6 +12,8 @@ No SaaS. No dashboard. Your phone, your server, your agents.
 ## Backlog
 
 ### core
+- [ ] self-ident: add notes on agent self-identification
+- [ ] improve /about: richer agent description and capabilities
 - [ ] multi-instance: one bot token per user, shared container
 - [ ] project hot-reload: re-discover /web without full restart
 - [ ] agent session persistence: survive container restart
