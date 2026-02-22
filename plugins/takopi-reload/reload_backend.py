@@ -16,9 +16,7 @@ class ReloadCommand:
     id = "reload"
     description = "reload projects (restarts container)"
 
-    async def handle(
-        self, ctx: CommandContext
-    ) -> CommandResult | None:
+    async def handle(self, ctx: CommandContext) -> CommandResult | None:
         await ctx.executor.send("reloading...")
         sys.exit(0)
 
@@ -29,9 +27,7 @@ class RefreshCommand:
     id = "refresh"
     description = "restart web server"
 
-    async def handle(
-        self, ctx: CommandContext
-    ) -> CommandResult | None:
+    async def handle(self, ctx: CommandContext) -> CommandResult | None:
         try:
             pid = int(VIT_PID.read_text().strip())
         except (FileNotFoundError, ValueError):

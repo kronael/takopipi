@@ -20,21 +20,19 @@ class LoginCommand:
     description = "authenticate claude code"
 
     def __init__(self):
-        self._proc = None
-        self._notify = None
+        self._proc: asyncio.subprocess.Process | None = None
+        self._notify: asyncio.Task | None = None
 
-    async def handle(
-        self, ctx: CommandContext
-    ) -> CommandResult | None:
+    async def handle(self, ctx: CommandContext) -> CommandResult | None:
         if self._proc and self._proc.returncode is None:
-            return CommandResult(
-                text="login already in progress"
-            )
+            return CommandResult(text="login already in progress")
         return await self._login(ctx)
 
     async def _login(self, ctx):
         self._proc = await asyncio.create_subprocess_exec(
-            "claude", "auth", "login",
+            "claude",
+            "auth",
+            "login",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
             env=ENV,
@@ -44,14 +42,11 @@ class LoginCommand:
             self._proc.kill()
             self._proc = None
             return CommandResult(text="failed to get auth url")
-        self._notify = asyncio.create_task(
-            self._wait(ctx)
-        )
-        return CommandResult(
-            text=f"open this link to sign in:\n{url}"
-        )
+        self._notify = asyncio.create_task(self._wait(ctx))
+        return CommandResult(text=f"open this link to sign in:\n{url}")
 
     async def _read_url(self):
+        assert self._proc and self._proc.stdout
         buf = b""
         try:
             while True:
@@ -70,30 +65,25 @@ class LoginCommand:
         return None
 
     async def _wait(self, ctx):
+        assert self._proc
         try:
-            await asyncio.wait_for(
-                self._proc.wait(), timeout=300
-            )
+            await asyncio.wait_for(self._proc.wait(), timeout=300)
             if self._proc.returncode == 0:
                 status = await self._status()
-                await ctx.executor.send(
-                    f"authenticated\n{status}"
-                )
+                await ctx.executor.send(f"authenticated\n{status}")
             else:
-                await ctx.executor.send(
-                    "authentication failed"
-                )
+                await ctx.executor.send("authentication failed")
         except asyncio.TimeoutError:
             self._proc.kill()
-            await ctx.executor.send(
-                "authentication timed out (5m)"
-            )
+            await ctx.executor.send("authentication timed out (5m)")
         finally:
             self._proc = None
 
     async def _status(self):
         proc = await asyncio.create_subprocess_exec(
-            "claude", "auth", "status",
+            "claude",
+            "auth",
+            "status",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=ENV,

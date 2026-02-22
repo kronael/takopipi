@@ -2,7 +2,7 @@
 set -e
 
 # --- create subcommand ---
-if [ "${1:-}" = "create"
+if [ "${1:-}" = "create" ]
 then
   NAME="${2:-}"
   if [ -z "$NAME" ]
@@ -10,13 +10,20 @@ then
     echo "usage: takopipi create <name>"
     exit 1
   fi
-  DEST="/srv/app/cfg/${NAME}"
+  DEST="cfg/${NAME}"
   if [ -d "$DEST" ]
   then
     echo "already exists: $DEST"
     exit 1
   fi
-  cp -r /srv/app/seed/example "$DEST"
+  SEED="/srv/app/seed/example"
+  [ -d "$SEED" ] || SEED="cfg/example"
+  if [ ! -d "$SEED" ]
+  then
+    echo "seed template not found"
+    exit 1
+  fi
+  cp -r "$SEED" "$DEST"
   echo "created: $DEST"
   echo ""
   echo "next:"
@@ -35,7 +42,7 @@ then
 fi
 
 INSTANCE="$1"
-CONFIG="/srv/app/cfg/${INSTANCE}/takopi.toml"
+CONFIG="cfg/${INSTANCE}/takopi.toml"
 
 if [ ! -f "$CONFIG" ]
 then
@@ -47,7 +54,7 @@ mkdir -p /root/.takopi
 cp "$CONFIG" /root/.takopi/takopi.toml
 
 # --- seed .claude from instance config ---
-CLAUDE_SRC="/srv/app/cfg/${INSTANCE}/.claude"
+CLAUDE_SRC="cfg/${INSTANCE}/.claude"
 mkdir -p /root/.claude
 
 if [ -d "$CLAUDE_SRC" ]

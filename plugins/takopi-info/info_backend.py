@@ -11,28 +11,17 @@ class StartCommand:
     id = "start"
     description = "show welcome info"
 
-    async def handle(
-        self, ctx: CommandContext
-    ) -> CommandResult | None:
+    async def handle(self, ctx: CommandContext) -> CommandResult | None:
         """output welcome and available commands."""
         lines = ["takopi - ai dev assistant", ""]
         projects = ctx.runtime.project_aliases()
         if projects:
-            lines.append(
-                "projects: " + ", ".join(projects)
-            )
-        commands = list_command_ids(
-            allowlist=ctx.runtime.allowlist
-        )
+            lines.append("projects: " + ", ".join(projects))
+        commands = list_command_ids(allowlist=ctx.runtime.allowlist)
         if commands:
-            lines.append(
-                "commands: /"
-                + ", /".join(commands)
-            )
+            lines.append("commands: /" + ", /".join(commands))
         lines.append("")
-        lines.append(
-            "send a message to start working."
-        )
+        lines.append("send a message to start working.")
         return CommandResult(text="\n".join(lines))
 
 
@@ -42,22 +31,16 @@ class HelpCommand:
     id = "help"
     description = "show available commands"
 
-    async def handle(
-        self, ctx: CommandContext
-    ) -> CommandResult | None:
+    async def handle(self, ctx: CommandContext) -> CommandResult | None:
         """output command list with descriptions."""
         lines = ["available commands:", ""]
-        commands = list_command_ids(
-            allowlist=ctx.runtime.allowlist
-        )
+        commands = list_command_ids(allowlist=ctx.runtime.allowlist)
         for cmd in sorted(commands):
             lines.append(f"  /{cmd}")
         lines.append("")
         projects = ctx.runtime.project_aliases()
         if projects:
-            lines.append(
-                "switch project: @project_name"
-            )
+            lines.append("switch project: @project_name")
         lines.append("web deploy: vite on :49165")
         return CommandResult(text="\n".join(lines))
 

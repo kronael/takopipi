@@ -1,0 +1,4 @@
+{
+  "include": ["plugins"],
+  "reportMissingImports": "warning"
+}

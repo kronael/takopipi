@@ -3,5 +3,5 @@ name = "takopi-info"
 version = "0.1.0"
 
 [project.entry-points."takopi.command_backends"]
-start = "info_backend:START_BACKEND"
 help = "info_backend:HELP_BACKEND"
+start = "info_backend:START_BACKEND"
