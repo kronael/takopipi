@@ -167,12 +167,10 @@ rm -f /root/.takopi/takopi.lock
 read -r VITE_PORT WEB_HOST <<< "$(python3 -c "
 import tomllib
 c = tomllib.load(open('$config', 'rb'))
-print(c.get('vite', {}).get('port', 49165), c.get('web', {}).get('host', ''))
+print(c.get('vite', {}).get('port', 49165),
+      c.get('web', {}).get('host', ''))
 ")"
-if [ -n "$WEB_HOST" ]
-then
-  export WEB_HOST
-fi
+[ -n "$WEB_HOST" ] && export WEB_HOST
 
 takopi claude &
 TAKOPI=$!

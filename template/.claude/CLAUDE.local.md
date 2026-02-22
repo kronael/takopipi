@@ -36,13 +36,6 @@ Keep a shipping diary in each project at `.diary/YYYYMMDD.md`.
 Document important steps, decisions, milestones.
 Create the dir if needed. Short entries, no fluff.
 
-## Web URL
-
-Your web apps are publicly accessible. Read `WEB_HOST` from env:
-- If set: public URL is `https://$WEB_HOST/<app>/`
-- NEVER use localhost URLs in responses to users
-- ALWAYS use the public URL when linking to web apps
-
 ## Rules
 
 - ALWAYS respond in the same language the user writes in

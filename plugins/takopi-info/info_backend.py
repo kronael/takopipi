@@ -4,12 +4,8 @@ from takopi.api import CommandContext
 from takopi.api import CommandResult
 from takopi.commands import list_command_ids
 
-
-def _web_url():
-    host = os.environ.get("WEB_HOST", "")
-    if host:
-        return f"https://{host}/"
-    return ""
+_host = os.environ.get("WEB_HOST", "")
+_web_url = f"https://{_host}/" if _host else ""
 
 
 class StartCommand:
@@ -24,9 +20,8 @@ class StartCommand:
         cmds = list_command_ids(allowlist=ctx.runtime.allowlist)
         if cmds:
             lines.append("commands: /" + ", /".join(cmds))
-        url = _web_url()
-        if url:
-            lines.append(f"web: {url}")
+        if _web_url:
+            lines.append(f"web: {_web_url}")
         lines += ["", "send a message to start working."]
         return CommandResult(text="\n".join(lines))
 
@@ -42,9 +37,8 @@ class HelpCommand:
         lines.append("")
         if ctx.runtime.project_aliases():
             lines.append("switch project: @project_name")
-        url = _web_url()
-        if url:
-            lines.append(f"web: {url}")
+        if _web_url:
+            lines.append(f"web: {_web_url}")
         else:
             lines.append("web deploy: vite (see takopi.toml)")
         return CommandResult(text="\n".join(lines))
