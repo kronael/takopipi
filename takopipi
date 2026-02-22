@@ -16,7 +16,6 @@ then
     exit 1
   fi
   SEED="/srv/app/template"
-  [ -d "$SEED" ] || SEED="/template"
   if [ ! -d "$SEED" ]
   then
     echo "seed template not found"
