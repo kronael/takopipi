@@ -1,7 +1,7 @@
 # takopipi
 
 Telegram bot overlay on [takopi](https://github.com/banteg/takopi).
-Adds custom plugins (login, reload, refresh, info, demiurg) and
+Adds custom plugins (login, reload, refresh, ship, info) and
 Docker packaging.
 
 ## Layout

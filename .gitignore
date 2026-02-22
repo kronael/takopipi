@@ -5,6 +5,10 @@ __pycache__/
 .ruff_cache/
 dist/
 .env
+.venv/
+/.claude/
+tmp/
+log/
 cfg/*/
 !cfg/example/
 .bash_profile

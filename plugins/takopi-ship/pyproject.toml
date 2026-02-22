@@ -1,0 +1,6 @@
+[project]
+name = "takopi-ship"
+version = "0.1.0"
+
+[project.entry-points."takopi.command_backends"]
+ship = "ship_backend:BACKEND"

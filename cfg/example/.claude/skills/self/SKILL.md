@@ -53,3 +53,21 @@ instructions.
 - ALWAYS read before modifying any source file
 - NEVER modify files in /refs (read-only reference)
 - ALWAYS validate changes build correctly after editing plugins
+
+## Updating from upstream
+
+### Skills, hooks, CLAUDE.md (from kronael/assistants)
+
+```sh
+git clone --depth 1 https://github.com/kronael/assistants /tmp/a
+cp /tmp/a/claude-template/global/CLAUDE.md /root/.claude/CLAUDE.md
+cp -r /tmp/a/claude-template/global/hooks/. /root/.claude/hooks/
+cp -rn /tmp/a/claude-template/global/skills/. /root/.claude/skills/
+rm -rf /tmp/a
+```
+
+### Web/self skills (from takopipi source)
+
+```sh
+cp -r /srv/app/cfg/example/.claude/skills/. /root/.claude/skills/
+```

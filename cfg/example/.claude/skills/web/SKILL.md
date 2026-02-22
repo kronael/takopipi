@@ -1,10 +1,48 @@
 ---
 name: web
-description: Deploy and serve web apps via vite on port 49165.
+description: Deploy and serve web apps via vite.
 ---
 
 Write files to /web/<app_name>/. Any dir with index.html is live:
-  /web/myapp/index.html  →  https://krons.fiu.wtf/myapp/
+  /web/myapp/index.html  ->  served at /myapp/
+
+## Stack
+
+Vite MPA mode serves /web/ as static files. No build step needed.
+- Vanilla HTML + CSS + JS/TS (vite handles TS natively)
+- Shared assets in /web/assets/ (hub.css, hub.js)
+- Each app is a subdirectory with its own index.html
+
+## Template
+
+Template files are in this skill at `template/`. On first deploy:
+1. Copy template/*.json and template/vite.config.ts to /web/
+2. Copy template/assets/ to /web/assets/
+3. Copy template/index.html to /web/index.html (landing page)
+
+hub.css provides dark/light theme, cards, grids, responsive layout.
+hub.js provides theme toggle button.
+
+## Styling
+
+Use the shared hub.css variables and classes for consistency:
+- `.hub-container` for page wrapper
+- `.card`, `.card-title`, `.card-meta` for content cards
+- `.grid` for auto-responsive grid layout
+- CSS variables: `--accent`, `--bg`, `--fg`, `--card`, `--border`
+
+For richer styling, add Tailwind CDN to individual apps:
+```html
+<script src="https://cdn.tailwindcss.com"></script>
+```
+Tailwind works alongside hub.css. Use it for layout utilities
+(flex, grid, spacing, typography) while hub.css handles theming.
+
+For interactive apps, add Alpine.js CDN:
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+```
+Alpine.js adds reactivity without a build step. Single-file apps.
 
 ## After every file edit under /web/
 

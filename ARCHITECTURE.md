@@ -46,17 +46,14 @@ with 1h timeout. Validates file exists before spawning.
 ```
 takopipi create <name>
   -> cp seed/example -> cfg/<name>/
+  -> seed external data dir .claude with config from:
+     - instance template (cfg/<name>/.claude/)
+     - kronael/assistants: CLAUDE.md, hooks, skills,
+       credentials template
   -> print setup instructions
 
 takopipi <instance>
   -> cp cfg/<instance>/takopi.toml -> /root/.takopi/takopi.toml
-  -> seed .claude from cfg/<instance>/.claude/:
-     - CLAUDE.local.md: always overwrite (takopipi authoritative)
-     - settings.json: always overwrite (outputStyle etc)
-     - output-styles/: always overwrite (takopipi authoritative)
-     - skills/: no-overwrite copy (instance skills win)
-  -> first run: seed from kronael/assistants:
-     - CLAUDE.md, hooks, skills
   -> auto-discover /web projects, append to config
   -> remove stale lock file
   -> read [vite] port from config (default 49165)
@@ -69,10 +66,10 @@ takopipi <instance>
 
 ```
 host                                        container
-/srv/data/takopi_<name>/cfg              -> /srv/app/cfg
-/srv/data/takopi_<name>/home/.claude     -> /root/.claude
-/srv/data/takopi_<name>/data/web         -> /web
-/srv/spool/takopi_<name>/.takopi         -> /root/.takopi
+/srv/data/takopipi_<name>/cfg            -> /srv/app/cfg
+/srv/data/takopipi_<name>/home/.claude   -> /root/.claude
+/srv/data/takopipi_<name>/data/web       -> /web
+/srv/spool/takopipi_<name>/.takopi       -> /root/.takopi
 /home/<user>/app                         -> /refs:ro
 ```
 
@@ -83,12 +80,14 @@ cfg/
   example/                    committed; seed template
     takopi.toml               example config
     .claude/
-      CLAUDE.local.md         bot context (overwritten each start)
-      settings.json           outputStyle=telegram (overwritten each start)
+      CLAUDE.local.md         bot context
+      settings.json           outputStyle=telegram
       output-styles/
         telegram.md           short plain-text for mobile chat
       skills/
-        web/SKILL.md          web deployment skill
+        web/
+          SKILL.md            web deployment skill template
+          template/           web project scaffold
         self/SKILL.md         self-inspection + skill creation
   <instance>/                 gitignored; per-instance
 ```
@@ -97,11 +96,14 @@ cfg/
 
 All native claude-code features, no custom injection:
 
-- `~/.claude/CLAUDE.md` -- dev wisdom, seeded from kronael/assistants
-- `~/.claude/CLAUDE.local.md` -- bot context, overwritten each start
-- `~/.claude/output-styles/telegram.md` -- auto-activated each start
-- `~/.claude/skills/` -- no-overwrite seed (takopipi skills win)
-- `~/.claude/hooks/` -- seeded from kronael/assistants on first run
+- `~/.claude/CLAUDE.md` -- dev wisdom; provisioned by `create`
+  from kronael/assistants
+- `~/.claude/CLAUDE.local.md` -- bot context; provisioned by `create`
+- `~/.claude/output-styles/telegram.md` -- auto-activated each prompt
+- `~/.claude/skills/` -- provisioned by `create` from instance
+  template and kronael/assistants
+- `~/.claude/hooks/` -- provisioned by `create` from kronael/assistants
 
-CLAUDE.local.md and output-styles are native claude-code features:
-auto-loaded, no hooks needed, deterministic every prompt.
+/root/.claude is fully host-mounted; provisioned once by `create` and
+updated live via the self skill. CLAUDE.local.md and output-styles are
+native claude-code features: auto-loaded, no hooks needed.

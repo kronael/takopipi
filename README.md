@@ -19,21 +19,22 @@ Telegram-based AI agent.
 make build
 
 # 2. one-time: seed credentials into data volume
-mkdir -p /srv/data/takopi_mybot/home/.claude
-cp ~/.claude/.credentials.json /srv/data/takopi_mybot/home/.claude/
+mkdir -p /srv/data/takopipi_mybot/home/.claude
+cp ~/.claude/.credentials.json /srv/data/takopipi_mybot/home/.claude/
 
-# 3. one-time: create instance config (cfg volume needed)
+# 3. one-time: create instance (provisions cfg, .claude config, hooks, skills, CLAUDE.md)
 docker run --rm \
-  -v /srv/data/takopi_mybot/cfg:/srv/app/cfg \
+  -v /srv/data/takopipi_mybot/cfg:/srv/app/cfg \
+  -v /srv/data/takopipi_mybot/home/.claude:/root/.claude \
   takopipi takopipi create mybot
-# edit /srv/data/takopi_mybot/cfg/mybot/takopi.toml
+# edit /srv/data/takopipi_mybot/cfg/mybot/takopi.toml
 
 # 4. run (all volume mounts every time)
 docker run \
-  -v /srv/data/takopi_mybot/cfg:/srv/app/cfg \
-  -v /srv/data/takopi_mybot/home/.claude:/root/.claude \
-  -v /srv/data/takopi_mybot/data/web:/web \
-  -v /srv/spool/takopi_mybot/.takopi:/root/.takopi \
+  -v /srv/data/takopipi_mybot/cfg:/srv/app/cfg \
+  -v /srv/data/takopipi_mybot/home/.claude:/root/.claude \
+  -v /srv/data/takopipi_mybot/data/web:/web \
+  -v /srv/spool/takopipi_mybot/.takopi:/root/.takopi \
   -v /home/<user>/app:/refs:ro \
   takopipi ./takopipi mybot
 ```
@@ -71,7 +72,7 @@ docker run ... takopipi ./takopipi prod
 docker run ... takopipi ./takopipi staging
 ```
 
-Each instance gets isolated volumes under `/srv/data/takopi_<name>/`.
+Each instance gets isolated volumes under `/srv/data/takopipi_<name>/`.
 
 ## Layout
 
@@ -85,12 +86,12 @@ Makefile     build
 
 ## Config
 
-Use `takopipi create <name>` to seed a new instance config from
-the example template. Then edit:
+Use `takopipi create <name>` to provision a new instance: it seeds the
+cfg directory from the example template and populates `.claude` with
+config, hooks, skills, and CLAUDE.md from kronael/assistants. Then edit:
 - `takopi.toml` -- bot_token, chat_id, vite port, API keys
-- `.claude/CLAUDE.local.md` -- bot context (overwritten each start)
+- `.claude/CLAUDE.local.md` -- bot context
 
-The entrypoint auto-activates the `telegram` output style and
-seeds CLAUDE.md + hooks from kronael/assistants on first run.
+To update .claude config later, follow the instructions in the self skill.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for internals.

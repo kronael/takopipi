@@ -100,49 +100,6 @@ fi
 mkdir -p /root/.takopi
 cp "$CONFIG" /root/.takopi/takopi.toml
 
-# --- seed .claude from instance config ---
-CLAUDE_SRC="/cfg/${INSTANCE}/.claude"
-mkdir -p /root/.claude
-
-if [ -d "$CLAUDE_SRC" ]
-then
-  # always overwrite CLAUDE.local.md (takopipi authoritative)
-  cp "$CLAUDE_SRC/CLAUDE.local.md" /root/.claude/CLAUDE.local.md \
-    2>/dev/null || true
-
-  # seed skills no-overwrite (instance skills win)
-  if [ -d "$CLAUDE_SRC/skills" ]
-  then
-    mkdir -p /root/.claude/skills
-    cp -rn "$CLAUDE_SRC/skills/." /root/.claude/skills/
-  fi
-
-  # always overwrite output styles (takopipi authoritative)
-  if [ -d "$CLAUDE_SRC/output-styles" ]
-  then
-    mkdir -p /root/.claude/output-styles
-    cp -r "$CLAUDE_SRC/output-styles/." /root/.claude/output-styles/
-  fi
-
-  # always overwrite settings.json (outputStyle etc)
-  [ -f "$CLAUDE_SRC/settings.json" ] && \
-    cp "$CLAUDE_SRC/settings.json" /root/.claude/settings.json
-fi
-
-# seed from kronael/assistants on first run
-if [ ! -f /root/.claude/hooks/local.py ]
-then
-  tmp=$(mktemp -d)
-  git clone --depth 1 https://github.com/kronael/assistants "$tmp"
-  BASE="$tmp/claude-template/global"
-  cp "$BASE/CLAUDE.md" /root/.claude/CLAUDE.md
-  mkdir -p /root/.claude/hooks
-  cp -r "$BASE/hooks/." /root/.claude/hooks/
-  mkdir -p /root/.claude/skills
-  cp -rn "$BASE/skills/." /root/.claude/skills/
-  rm -rf "$tmp"
-fi
-
 # auto-discover web apps from /web
 config=/root/.takopi/takopi.toml
 sed -i '/^\[projects\./,$d' "$config"
