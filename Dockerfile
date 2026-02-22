@@ -31,7 +31,7 @@ RUN for p in /srv/plugins/*/; do \
   done
 
 # seed template (survives volume overlay on /cfg/)
-COPY cfg/example/ /srv/app/seed/example/
+COPY template/ /srv/app/template/
 
 COPY cfg/ /cfg/
 COPY takopipi ./takopipi

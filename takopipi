@@ -16,14 +16,14 @@ then
     echo "already exists: $DEST"
     exit 1
   fi
-  SEED="/srv/app/seed/example"
-  [ -d "$SEED" ] || SEED="/cfg/example"
+  SEED="/srv/app/template"
+  [ -d "$SEED" ] || SEED="/template"
   if [ ! -d "$SEED" ]
   then
     echo "seed template not found"
     exit 1
   fi
-  cp "$SEED/takopipi_example.toml" "$DEST"
+  cp "$SEED/takopipi.toml" "$DEST"
   echo "created: $DEST"
 
   # seed runtime dirs

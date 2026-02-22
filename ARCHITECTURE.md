@@ -8,7 +8,7 @@ Plugin overlay on banteg/takopi v0.22.1.
 2. uv + claude-code (npm global)
 3. takopi from upstream git (pinned v0.22.1)
 4. plugins installed via `uv pip install -e` per plugin
-5. seed template baked at `/srv/app/seed/example/`
+5. seed template baked at `/srv/app/template/`
 6. cfg/, entrypoint copied last
 
 ## Plugin Protocol
@@ -45,10 +45,10 @@ with 1h timeout. Validates file exists before spawning.
 
 ```
 takopipi create <name>
-  -> cp seed/example/takopi.toml -> cfg/<name>.toml
+  -> cp template/takopipi.toml -> cfg/<name>.toml
   -> mkdir /srv/{spool,run,data}/takopipi_<name>
   -> seed /srv/data/takopipi_<name>/home/.claude/ with:
-     - instance template (seed/example/.claude/)
+     - instance template (template/.claude/)
      - kronael/assistants: CLAUDE.md, hooks, skills,
        credentials template
   -> generate systemd service file
@@ -81,20 +81,21 @@ host                                     container
 ## cfg Layout
 
 ```
+template/                     committed; seed for new instances
+  takopipi.toml               example config
+  .claude/
+    CLAUDE.local.md           bot context
+    settings.json             outputStyle=telegram
+    output-styles/
+      telegram.md             short plain-text for mobile chat
+    skills/
+      web/
+        SKILL.md              web deployment skill template
+        template/             web project scaffold
+      self/SKILL.md           self-inspection + skill creation
+      self-inspect/SKILL.md   source browsing skill
+
 cfg/
-  example/                    committed; seed template
-    takopi.toml               example config
-    .claude/
-      CLAUDE.local.md         bot context
-      settings.json           outputStyle=telegram
-      output-styles/
-        telegram.md           short plain-text for mobile chat
-      skills/
-        web/
-          SKILL.md            web deployment skill template
-          template/           web project scaffold
-        self/SKILL.md         self-inspection + skill creation
-        self-inspect/SKILL.md source browsing skill
   <instance>.toml             gitignored; per-instance config
 ```
 

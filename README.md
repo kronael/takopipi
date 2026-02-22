@@ -79,7 +79,8 @@ Each instance gets isolated volumes under `/srv/data/takopipi_<name>/`.
 
 ```
 plugins/     custom command plugins
-cfg/         config templates (example/) and per-instance (gitignored)
+template/    seed template for new instances
+cfg/         per-instance configs (gitignored)
 takopipi     container entrypoint
 Dockerfile   single-stage build
 Makefile     build
@@ -88,7 +89,7 @@ Makefile     build
 ## Config
 
 Run `takopipi create <name>` on the host. It:
-1. Seeds `cfg/<name>.toml` from the example template (baked into image)
+1. Seeds `cfg/<name>.toml` from the template (baked into image)
 2. Creates runtime dirs under `/srv/{spool,run,data}/takopipi_<name>/`
 3. Seeds `/srv/data/takopipi_<name>/home/.claude/` with
    instance template, kronael/assistants (hooks, skills, CLAUDE.md)

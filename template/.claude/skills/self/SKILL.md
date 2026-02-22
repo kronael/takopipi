@@ -11,7 +11,7 @@ trigger: self-inspection, skill creation, plugin editing, "how do I work"
 - `/srv/app/` -- takopipi source (entrypoint, plugins, cfg)
 - `/srv/app/takopipi` -- container entrypoint (bash)
 - `/srv/app/plugins/` -- custom command plugins
-- `/srv/app/cfg/` -- config templates and per-instance configs
+- `/srv/app/template/` -- seed template for new instances
 
 ## Skills
 
@@ -69,5 +69,5 @@ rm -rf /tmp/a
 ### Web/self skills (from takopipi source)
 
 ```sh
-cp -r /srv/app/cfg/example/.claude/skills/. /root/.claude/skills/
+cp -r /srv/app/template/.claude/skills/. /root/.claude/skills/
 ```

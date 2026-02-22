@@ -8,7 +8,8 @@ Docker packaging.
 
 ```
 plugins/          custom command plugins (tracked)
-cfg/              config templates and agent context (tracked)
+template/         seed template for new instances (tracked)
+cfg/              per-instance configs (gitignored)
 refs/takopi/      upstream takopi v0.22.1 source (gitignored, reference only)
 takopipi          container entrypoint (bash)
 Dockerfile        single-stage build
