@@ -18,10 +18,24 @@ Auto-discovered from /web on startup:
 - Each subdir becomes its own project
 Switch with @project_name in chat.
 
-## Reference Code
+## Paths
 
-Read-only reference code is mounted at /refs.
-Use it for API lookups, not for editing.
+- `/root/` — your home directory
+- `/root/.claude/` — your Claude config, settings, skills
+- `/root/.claude/CLAUDE.local.md` — THIS file (persistent memory)
+- `/root/.claude/skills/` — skill definitions
+- `/srv/app/` — takopipi source (read-only reference)
+- `/web/` — web apps (vite-served)
+- `/refs/` — upstream reference code (read-only)
+
+When asked to "remember" something, write it to
+`/root/.claude/CLAUDE.local.md` (this file).
+
+## Diary
+
+Keep a shipping diary at `/root/.diary/`. Date-named files
+(YYYYMMDD.md). Document important steps, decisions, milestones.
+Create the dir if needed. Short entries, no fluff.
 
 ## Web URL
 
