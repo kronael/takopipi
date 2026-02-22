@@ -47,12 +47,15 @@ with 1h timeout. Validates file exists before spawning.
 entrypoint
   -> mkdir -p /root/.takopi
   -> copy config to /root/.takopi/takopi.toml
-  -> scan /srv/data/takopi/web/*/
+  -> add /web root as project "web"
+  -> scan /web/*/ for subdir projects
   -> symlink CLAUDE.md into each web app dir
   -> append [projects.<name>] sections to config
   -> remove stale lock file
   -> takopi claude &  (background)
+  -> mkdir -p /srv/app/tmp
   -> vite --host 0.0.0.0 --port 49165  (restart loop)
+  -> write inner vite PID to /srv/app/tmp/vite.pid
   -> trap SIGINT/SIGTERM, wait
 ```
 
@@ -61,7 +64,7 @@ entrypoint
 ```
 host                              container
 /srv/spool/takopi/.takopi      -> /root/.takopi
-/home/<user>/app               -> /workspace:ro
+/home/<user>/app               -> /refs:ro
 /home/<user>/.claude/CLAUDE.md -> /root/.claude/CLAUDE.md:ro
 /home/<user>/.claude/skills    -> /root/.claude/skills:ro
 /srv/data/takopi/web           -> /web

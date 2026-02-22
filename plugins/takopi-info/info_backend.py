@@ -58,9 +58,7 @@ class HelpCommand:
             lines.append(
                 "switch project: @project_name"
             )
-        lines.append(
-            "web deploy: takopi.fiu.wtf"
-        )
+        lines.append("web deploy: vite on :49165")
         return CommandResult(text="\n".join(lines))
 
 

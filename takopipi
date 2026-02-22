@@ -1,8 +1,15 @@
 #!/bin/bash
 set -e
 
-INSTANCE=${1:-takopipi_krons}
-CONFIG="/srv/app/cfg/${INSTANCE}.toml"
+if [ -z "${1:-}" ]
+then
+  echo "usage: takopipi <instance>"
+  echo "  e.g. takopipi mybot"
+  exit 1
+fi
+
+INSTANCE="$1"
+CONFIG="/srv/app/cfg/takopipi_${INSTANCE}.toml"
 
 if [ ! -f "$CONFIG" ]
 then
@@ -17,6 +24,19 @@ cp "$CONFIG" /root/.takopi/takopi.toml
 config=/root/.takopi/takopi.toml
 sed -i '/^\[projects\./,$d' "$config"
 
+# /web root as project "web"
+if [ -d /web ]
+then
+  ln -sf /srv/app/cfg/CLAUDE.md /web/CLAUDE.md
+  cat >> "$config" <<EOF
+
+[projects.web]
+path = "/web"
+default_engine = "claude"
+EOF
+fi
+
+# each subdir as its own project
 for app in /web/*/
 do
   [ -d "$app" ] || continue
@@ -38,9 +58,13 @@ rm -f /root/.takopi/takopi.lock
 takopi claude &
 TAKOPI=$!
 
+mkdir -p /srv/app/tmp
+
 (while true
 do
-  npx vite --host 0.0.0.0 --port 49165
+  npx vite --host 0.0.0.0 --port 49165 &
+  echo $! > /srv/app/tmp/vite.pid
+  wait $!
   sleep 1
 done) &
 VITE=$!

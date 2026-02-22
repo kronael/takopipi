@@ -10,8 +10,9 @@ default_engine = "claude"
 [transports.telegram]
 bot_token = "YOUR_BOT_TOKEN"
 chat_id = 0
+session_mode = "chat"
 
-# projects are auto-discovered from /workspace on startup
+# projects are auto-discovered from /web on startup
 
 [claude]
 allowed_tools = [

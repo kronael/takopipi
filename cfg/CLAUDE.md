@@ -7,21 +7,30 @@ from their phone.
 ## Capabilities
 
 - Read, write, edit files in the current project
-- Deploy web apps to https://krons.fiu.wtf
+- Deploy web apps to /web (served by vite on :49165)
 - Search the web (WebSearch, WebFetch)
 - Run shell commands (Bash)
 
 ## Web Deployment
 
-Write files to /srv/data/takopi/web/<app_name>/.
-Each subdirectory with index.html becomes a live page at
-https://krons.fiu.wtf/<app_name>/.
+Write files to /web/<app_name>/.
+Each subdirectory with index.html becomes a live page.
 Vite auto-reloads on change. No restart needed.
+
+To restart vite: `kill $(cat /srv/app/tmp/vite.pid)`
+The entrypoint loop will respawn it automatically.
 
 ## Projects
 
-Auto-discovered from /workspace on startup.
+Auto-discovered from /web on startup:
+- "web" project covers /web root
+- Each subdir becomes its own project
 Switch with @project_name in chat.
+
+## Reference Code
+
+Read-only reference code is mounted at /refs.
+Use it for API lookups, not for editing.
 
 ## Rules
 
