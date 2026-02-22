@@ -1,5 +1,3 @@
-"""ship command: run ship on a design file."""
-
 import asyncio
 from pathlib import Path
 
@@ -8,26 +6,18 @@ from takopi.api import CommandResult
 
 
 class ShipCommand:
-    """run ship on a design file."""
-
     id = "ship"
     description = "run ship on a design file"
 
     async def handle(self, ctx: CommandContext) -> CommandResult | None:
-        """execute ship with design file."""
-        if not ctx.args_text.strip():
+        f = ctx.args_text.strip()
+        if not f:
             return CommandResult(
-                text=("usage: /ship <design-file>\nexample: /ship design.txt")
+                text="usage: /ship <design-file>\nexample: /ship design.txt"
             )
-
-        design_file = ctx.args_text.strip()
-
-        design_path = Path(design_file)
-        if not design_path.exists():
-            return CommandResult(text=f"FileNotFound: {design_file}")
-
-        if not design_path.is_file():
-            return CommandResult(text=f"not a file: {design_file}")
+        p = Path(f)
+        if not p.is_file():
+            return CommandResult(text=f"not a file: {f}")
 
         try:
             proc = await asyncio.create_subprocess_exec(
@@ -35,36 +25,32 @@ class ShipCommand:
                 "--from",
                 "git+https://github.com/kronael/ship",
                 "ship",
-                design_file,
+                f,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-        except FileNotFoundError:
-            return CommandResult(text="uvx command not found in PATH")
-        except PermissionError:
-            return CommandResult(text="permission denied executing uvx")
+        except OSError as e:
+            return CommandResult(text=f"failed to start uvx: {e}")
 
-        await ctx.executor.send(f"started ship on {design_file}\npid: {proc.pid}")
+        await ctx.executor.send(f"started ship on {f}\npid: {proc.pid}")
 
         try:
-            stdout, stderr = await asyncio.wait_for(
+            _, stderr = await asyncio.wait_for(
                 proc.communicate(),
                 timeout=3600.0,
             )
         except asyncio.TimeoutError:
             proc.kill()
             await proc.wait()
-            return CommandResult(text=f"timeout running ship on {design_file}")
+            return CommandResult(text=f"timeout running ship on {f}")
 
         if proc.returncode == 0:
-            result = f"design complete: {design_file}"
-        else:
-            err = stderr.decode().strip()
-            result = f"design failed: {design_file}\nexit code: {proc.returncode}"
-            if err:
-                result += f"\n{err}"
-
-        return CommandResult(text=result)
+            return CommandResult(text=f"design complete: {f}")
+        err = stderr.decode().strip()
+        msg = f"design failed: {f}\nexit code: {proc.returncode}"
+        if err:
+            msg += f"\n{err}"
+        return CommandResult(text=msg)
 
 
 BACKEND = ShipCommand()

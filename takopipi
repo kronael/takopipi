@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-# --- create subcommand ---
 if [ "${1:-}" = "create" ]
 then
   NAME="${2:-}"
@@ -26,38 +25,27 @@ then
   cp "$SEED/takopipi.toml" "$DEST"
   echo "created: $DEST"
 
-  # seed runtime dirs
-  mkdir -p "/srv/spool/takopipi_${NAME}/projects"
-  mkdir -p "/srv/run/takopipi_${NAME}"
-  mkdir -p "/srv/data/takopipi_${NAME}/web"
+  mkdir -p "/srv/spool/takopipi_${NAME}/projects" \
+           "/srv/run/takopipi_${NAME}" \
+           "/srv/data/takopipi_${NAME}/web"
 
-  # seed external data dir for host-mount home
   DATA_DIR="/srv/data/takopipi_${NAME}/home"
   if [ ! -d "$DATA_DIR" ]
   then
     echo "seeding: $DATA_DIR"
     mkdir -p "$DATA_DIR/.claude"
+    [ -d "$SEED/.claude" ] && cp -r "$SEED/.claude/." "$DATA_DIR/.claude/"
 
-    # copy claude config from instance seed
-    if [ -d "$SEED/.claude" ]
-    then
-      cp -r "$SEED/.claude/." "$DATA_DIR/.claude/"
-    fi
-
-    # seed global config from assistants repo
     tmp=$(mktemp -d)
     git clone --depth 1 \
-      https://github.com/kronael/assistants "$tmp" \
-      2>/dev/null
+      https://github.com/kronael/assistants "$tmp" 2>/dev/null
     BASE="$tmp/claude-template/global"
     cp "$BASE/CLAUDE.md" "$DATA_DIR/.claude/CLAUDE.md"
-    mkdir -p "$DATA_DIR/.claude/hooks"
+    mkdir -p "$DATA_DIR/.claude/hooks" "$DATA_DIR/.claude/skills"
     cp -r "$BASE/hooks/." "$DATA_DIR/.claude/hooks/"
-    mkdir -p "$DATA_DIR/.claude/skills"
     cp -rn "$BASE/skills/." "$DATA_DIR/.claude/skills/"
     rm -rf "$tmp"
 
-    # credentials template
     cat > "$DATA_DIR/.claude/credentials.json.example" <<CRED
 {
   "claudeAiOauth": {
@@ -72,7 +60,6 @@ CRED
     echo "exists: $DATA_DIR (skipping seed)"
   fi
 
-  # generate systemd service file
   SERVICE="$DATA_DIR/../takopipi_${NAME}.service"
   cat > "$SERVICE" <<SVC
 [Unit]
@@ -130,7 +117,6 @@ SVC
   exit 0
 fi
 
-# --- instance run ---
 if [ -z "${1:-}" ]
 then
   echo "usage: takopipi <instance>"
@@ -140,7 +126,6 @@ fi
 
 INSTANCE="$1"
 
-# config: explicit path as $2, or /cfg/<instance>.toml
 CONFIG="${2:-/cfg/${INSTANCE}.toml}"
 
 if [ ! -f "$CONFIG" ]
@@ -151,12 +136,9 @@ fi
 
 mkdir -p /root/.takopi
 cp "$CONFIG" /root/.takopi/takopi.toml
-
-# auto-discover web apps from /web
 config=/root/.takopi/takopi.toml
 sed -i '/^\[projects\./,$d' "$config"
 
-# /web root as project "web"
 if [ -d /web ]
 then
   cat >> "$config" <<EOF
@@ -167,7 +149,6 @@ default_engine = "claude"
 EOF
 fi
 
-# each subdir as its own project
 for app in /web/*/
 do
   [ -d "$app" ] || continue
@@ -183,15 +164,12 @@ EOF
 done
 
 rm -f /root/.takopi/takopi.lock
-
-# read vite port from config (default 49165)
 VITE_PORT=$(python3 -c "
 import tomllib
 c = tomllib.load(open('$config', 'rb'))
 print(c.get('vite', {}).get('port', 49165))
 ")
 
-# --- run both ---
 takopi claude &
 TAKOPI=$!
 

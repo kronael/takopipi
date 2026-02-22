@@ -1,5 +1,3 @@
-"""login command: authenticate claude code via oauth."""
-
 import asyncio
 import json
 import os
@@ -102,7 +100,7 @@ class LoginCommand:
             email = d.get("email", "?")
             plan = d.get("subscriptionType", "?")
             return f"{email} ({plan})"
-        except (json.JSONDecodeError, KeyError):
+        except json.JSONDecodeError:
             return out.decode().strip() or "unknown"
 
 

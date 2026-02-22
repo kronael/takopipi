@@ -1,5 +1,3 @@
-"""reload/refresh commands: restart bot or vite."""
-
 import asyncio
 import sys
 from pathlib import Path
@@ -7,12 +5,10 @@ from pathlib import Path
 from takopi.api import CommandContext
 from takopi.api import CommandResult
 
-VIT_PID = Path("/srv/app/tmp/vite.pid")
+VITE_PID = Path("/srv/app/tmp/vite.pid")
 
 
 class ReloadCommand:
-    """exit process to reload projects via container restart."""
-
     id = "reload"
     description = "reload projects (restarts container)"
 
@@ -22,14 +18,12 @@ class ReloadCommand:
 
 
 class RefreshCommand:
-    """restart vite dev server by PID."""
-
     id = "refresh"
     description = "restart web server"
 
     async def handle(self, ctx: CommandContext) -> CommandResult | None:
         try:
-            pid = int(VIT_PID.read_text().strip())
+            pid = int(VITE_PID.read_text().strip())
         except (FileNotFoundError, ValueError):
             return CommandResult(text="vite pid not found")
         try:

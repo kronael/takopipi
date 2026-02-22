@@ -7,12 +7,12 @@ Docker packaging.
 ## Layout
 
 ```
-plugins/          custom command plugins (tracked)
-template/         seed template for new instances (tracked)
+plugins/          custom command plugins
+template/         seed for new instances
 cfg/              per-instance configs (gitignored)
-refs/takopi/      upstream takopi v0.22.1 source (gitignored, reference only)
-takopipi          container entrypoint (bash)
-Dockerfile        single-stage build
+refs/takopi/      upstream takopi v0.22.1 source (gitignored)
+takopipi          container entrypoint
+Dockerfile        build
 Makefile          build
 ```
 
