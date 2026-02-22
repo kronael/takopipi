@@ -55,7 +55,8 @@ before first start.
 
 ## Web serving
 
-Vite runs inside the container on port 49165, serving `/web/`.
+Vite runs inside the container serving `/web/`. Port is set
+via `[vite] port` in takopi.toml (default 49165).
 Each subdirectory with an `index.html` becomes a live page at
 `your-domain/<name>/`.
 
@@ -86,7 +87,7 @@ Makefile     build
 
 Use `takopipi create <name>` to seed a new instance config from
 the example template. Then edit:
-- `takopi.toml` -- bot_token, chat_id, API keys
+- `takopi.toml` -- bot_token, chat_id, vite port, API keys
 - `.claude/CLAUDE.local.md` -- bot context (overwritten each start)
 
 The entrypoint auto-activates the `telegram` output style and

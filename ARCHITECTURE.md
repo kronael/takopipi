@@ -59,8 +59,9 @@ takopipi <instance>
      - CLAUDE.md, hooks, skills
   -> auto-discover /web projects, append to config
   -> remove stale lock file
+  -> read [vite] port from config (default 49165)
   -> takopi claude &  (background)
-  -> vite --host 0.0.0.0 --port 49165  (restart loop)
+  -> vite --host 0.0.0.0 --port <configured>  (restart loop)
   -> trap SIGINT/SIGTERM, wait
 ```
 
