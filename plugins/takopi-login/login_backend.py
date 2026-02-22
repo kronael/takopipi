@@ -29,14 +29,19 @@ class LoginCommand:
         return await self._login(ctx)
 
     async def _login(self, ctx):
-        self._proc = await asyncio.create_subprocess_exec(
-            "claude",
-            "auth",
-            "login",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
-            env=ENV,
-        )
+        try:
+            self._proc = await asyncio.create_subprocess_exec(
+                "claude",
+                "auth",
+                "login",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+                env=ENV,
+            )
+        except FileNotFoundError:
+            return CommandResult(text="claude cli not found")
+        except OSError as e:
+            return CommandResult(text=f"failed to start claude: {e}")
         url = await self._read_url()
         if not url:
             self._proc.kill()
@@ -46,7 +51,8 @@ class LoginCommand:
         return CommandResult(text=f"open this link to sign in:\n{url}")
 
     async def _read_url(self):
-        assert self._proc and self._proc.stdout
+        if not self._proc or not self._proc.stdout:
+            return None
         buf = b""
         try:
             while True:
@@ -65,7 +71,8 @@ class LoginCommand:
         return None
 
     async def _wait(self, ctx):
-        assert self._proc
+        if not self._proc:
+            return
         try:
             await asyncio.wait_for(self._proc.wait(), timeout=300)
             if self._proc.returncode == 0:

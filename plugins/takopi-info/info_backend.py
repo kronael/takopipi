@@ -41,7 +41,7 @@ class HelpCommand:
         projects = ctx.runtime.project_aliases()
         if projects:
             lines.append("switch project: @project_name")
-        lines.append("web deploy: vite on :49165")
+        lines.append("web deploy: vite (see takopi.toml)")
         return CommandResult(text="\n".join(lines))
 
 

@@ -32,8 +32,13 @@ class RefreshCommand:
             pid = int(VIT_PID.read_text().strip())
         except (FileNotFoundError, ValueError):
             return CommandResult(text="vite pid not found")
-        proc = await asyncio.create_subprocess_exec("kill", str(pid))
-        await proc.wait()
+        try:
+            proc = await asyncio.create_subprocess_exec("kill", str(pid))
+            await proc.wait()
+        except OSError as e:
+            return CommandResult(text=f"kill failed: {e}")
+        if proc.returncode != 0:
+            return CommandResult(text=f"kill exited {proc.returncode}")
         return CommandResult(text="vite restarting")
 
 

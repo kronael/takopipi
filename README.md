@@ -14,38 +14,35 @@ Telegram-based AI agent.
 
 ## Live example
 
-https://krons.fiu.wtf
+https://krons.fiu.wtf — web apps served by a running instance.
+
+## Prerequisites
+
+- Docker
+- Telegram bot token (from [@BotFather](https://t.me/BotFather))
 
 ## Quick Start
 
 ```sh
 # 1. build
-make build
+make image
 
-# 2. one-time: seed credentials into data volume
-mkdir -p /srv/data/takopipi_mybot/home/.claude
-cp ~/.claude/.credentials.json /srv/data/takopipi_mybot/home/.claude/
+# 2. create instance (provisions config + seeds claude data dir)
+./takopipi create mybot
 
-# 3. one-time: create instance (provisions cfg, .claude config, hooks, skills, CLAUDE.md)
-docker run --rm \
-  -v /srv/data/takopipi_mybot/cfg:/srv/app/cfg \
-  -v /srv/data/takopipi_mybot/home/.claude:/root/.claude \
-  takopipi takopipi create mybot
-# edit /srv/data/takopipi_mybot/cfg/mybot/takopi.toml
+# 3. configure
+#   edit cfg/mybot/takopi.toml  (bot_token, chat_id)
+#   copy credentials to /srv/data/takopipi_mybot/cfg/credentials.json
+#   rebuild: make image
 
-# 4. run (all volume mounts every time)
+# 4. run via generated service file, or manually:
 docker run \
-  -v /srv/data/takopipi_mybot/cfg:/srv/app/cfg \
-  -v /srv/data/takopipi_mybot/home/.claude:/root/.claude \
-  -v /srv/data/takopipi_mybot/data/web:/web \
-  -v /srv/spool/takopipi_mybot/.takopi:/root/.takopi \
-  -v /home/<user>/app:/refs:ro \
-  takopipi ./takopipi mybot
+  -v /srv/data/takopipi_mybot/cfg:/root/.claude \
+  -v /srv/data/mybot/web:/web \
+  takopipi ./takopipi mybot /cfg/takopipi_mybot.toml
 ```
 
-Volume mounts are not optional -- they must appear on every
-`docker run`. The one-time steps only populate the volume dirs
-before first start.
+`create` generates a systemd service file and offers to install it.
 
 ## Plugins
 
@@ -90,12 +87,14 @@ Makefile     build
 
 ## Config
 
-Use `takopipi create <name>` to provision a new instance: it seeds the
-cfg directory from the example template and populates `.claude` with
-config, hooks, skills, and CLAUDE.md from kronael/assistants. Then edit:
-- `takopi.toml` -- bot_token, chat_id, vite port, API keys
-- `.claude/CLAUDE.local.md` -- bot context
+Run `takopipi create <name>` on the host. It:
+1. Seeds `cfg/<name>/` from the example template (baked into image)
+2. Seeds `/srv/data/takopipi_<name>/cfg/` with `.claude` config
+   (hooks, skills, CLAUDE.md) from kronael/assistants
+3. Generates a systemd service file and offers to install it
 
-To update .claude config later, follow the instructions in the self skill.
+Then edit:
+- `cfg/<name>/takopi.toml` -- bot_token, chat_id, vite port, API keys
+- `cfg/<name>/.claude/CLAUDE.local.md` -- bot context
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for internals.

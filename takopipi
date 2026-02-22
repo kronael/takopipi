@@ -68,13 +68,60 @@ CRED
     echo "exists: $DATA_DIR (skipping seed)"
   fi
 
+  # generate systemd service file
+  SERVICE="$DATA_DIR/../takopipi_${NAME}.service"
+  cat > "$SERVICE" <<SVC
+[Unit]
+Description=takopipi ${NAME}
+After=docker.service
+Requires=docker.service
+
+[Service]
+StartLimitInterval=0
+StartLimitBurst=100
+RestartSec=1
+TimeoutStartSec=infinity
+Restart=always
+
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm -f %n
+ExecStop=/usr/bin/docker rm -f %n
+ExecStart=/usr/bin/docker run -i --rm --name %n \
+    --network=host \
+    -v /srv/data/takopipi_${NAME}/cfg:/root/.claude \
+    -v /srv/data/${NAME}/web:/web \
+    takopipi \
+    ./takopipi ${NAME} /cfg/takopipi_${NAME}.toml
+
+SyslogIdentifier=takopipi_${NAME}
+SyslogFacility=local3
+
+[Install]
+WantedBy=default.target
+SVC
+  echo "generated: $SERVICE"
+
   echo ""
   echo "next:"
-  echo "  1. cp $DEST/takopi.toml /cfg/<server>/takopi_${NAME}.toml"
-  echo "  2. edit /cfg/<server>/takopi_${NAME}.toml  (bot_token, chat_id)"
-  echo "  3. edit $DEST/.claude/CLAUDE.local.md  (bot context)"
-  echo "  4. copy credentials to $DATA_DIR/credentials.json"
-  echo "  5. run: takopipi $NAME"
+  echo "  1. edit $DEST/takopi.toml  (bot_token, chat_id)"
+  echo "  2. copy credentials to $DATA_DIR/credentials.json"
+  echo "  3. rebuild: make image"
+  echo ""
+
+  read -r -p "install service? [y/N] " answer
+  if [ "$answer" = "y" ] || [ "$answer" = "Y" ]
+  then
+    sudo cp "$SERVICE" /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable "takopipi_${NAME}"
+    echo "installed: takopipi_${NAME}"
+    echo "start: sudo systemctl start takopipi_${NAME}"
+  else
+    echo "install manually:"
+    echo "  sudo cp $SERVICE /etc/systemd/system/"
+    echo "  sudo systemctl daemon-reload"
+    echo "  sudo systemctl enable --now takopipi_${NAME}"
+  fi
   exit 0
 fi
 

@@ -2,10 +2,13 @@
 .claude
 .idea
 .vscode
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
 tmp/
 objects/
 hooks/
 refs/
-*.md
 Makefile
 cfg/takopi_iha.toml
