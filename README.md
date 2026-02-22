@@ -32,12 +32,12 @@ make image
 
 # 3. configure
 #   edit cfg/mybot/takopi.toml  (bot_token, chat_id)
-#   copy credentials to /srv/data/takopipi_mybot/cfg/credentials.json
+#   copy credentials to /srv/data/takopipi_mybot/home/.claude/credentials.json
 #   rebuild: make image
 
 # 4. run via generated service file, or manually:
 docker run \
-  -v /srv/data/takopipi_mybot/cfg:/root/.claude \
+  -v /srv/data/takopipi_mybot/home:/root \
   -v /srv/data/mybot/web:/web \
   takopipi ./takopipi mybot /cfg/takopipi_mybot.toml
 ```
@@ -89,7 +89,7 @@ Makefile     build
 
 Run `takopipi create <name>` on the host. It:
 1. Seeds `cfg/<name>/` from the example template (baked into image)
-2. Seeds `/srv/data/takopipi_<name>/cfg/` with `.claude` config
+2. Seeds `/srv/data/takopipi_<name>/home/.claude/` with
    (hooks, skills, CLAUDE.md) from kronael/assistants
 3. Generates a systemd service file and offers to install it
 

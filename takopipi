@@ -26,17 +26,17 @@ then
   cp -r "$SEED" "$DEST"
   echo "created: $DEST"
 
-  # seed external data dir for host-mount claude config
-  DATA_DIR="/srv/data/takopipi_${NAME}/cfg"
+  # seed external data dir for host-mount home
+  DATA_DIR="/srv/data/takopipi_${NAME}/home"
   if [ ! -d "$DATA_DIR" ]
   then
     echo "seeding: $DATA_DIR"
-    mkdir -p "$DATA_DIR"
+    mkdir -p "$DATA_DIR/.claude"
 
     # copy claude config from instance seed
     if [ -d "$DEST/.claude" ]
     then
-      cp -r "$DEST/.claude/." "$DATA_DIR/"
+      cp -r "$DEST/.claude/." "$DATA_DIR/.claude/"
     fi
 
     # seed global config from assistants repo
@@ -45,16 +45,15 @@ then
       https://github.com/kronael/assistants "$tmp" \
       2>/dev/null
     BASE="$tmp/claude-template/global"
-    cp "$BASE/CLAUDE.md" "$DATA_DIR/CLAUDE.md"
-    mkdir -p "$DATA_DIR/hooks"
-    cp -r "$BASE/hooks/." "$DATA_DIR/hooks/"
-    mkdir -p "$DATA_DIR/skills"
-    cp -rn "$BASE/skills/." "$DATA_DIR/skills/"
+    cp "$BASE/CLAUDE.md" "$DATA_DIR/.claude/CLAUDE.md"
+    mkdir -p "$DATA_DIR/.claude/hooks"
+    cp -r "$BASE/hooks/." "$DATA_DIR/.claude/hooks/"
+    mkdir -p "$DATA_DIR/.claude/skills"
+    cp -rn "$BASE/skills/." "$DATA_DIR/.claude/skills/"
     rm -rf "$tmp"
 
     # credentials template
-    mkdir -p "$DATA_DIR"
-    cat > "$DATA_DIR/credentials.json.example" <<CRED
+    cat > "$DATA_DIR/.claude/credentials.json.example" <<CRED
 {
   "claudeAiOauth": {
     "accessToken": "",
@@ -88,7 +87,7 @@ ExecStartPre=-/usr/bin/docker rm -f %n
 ExecStop=/usr/bin/docker rm -f %n
 ExecStart=/usr/bin/docker run -i --rm --name %n \
     --network=host \
-    -v /srv/data/takopipi_${NAME}/cfg:/root/.claude \
+    -v /srv/data/takopipi_${NAME}/home:/root \
     -v /srv/data/${NAME}/web:/web \
     takopipi \
     ./takopipi ${NAME} /cfg/takopipi_${NAME}.toml
@@ -104,7 +103,7 @@ SVC
   echo ""
   echo "next:"
   echo "  1. edit $DEST/takopi.toml  (bot_token, chat_id)"
-  echo "  2. copy credentials to $DATA_DIR/credentials.json"
+  echo "  2. copy credentials to $DATA_DIR/.claude/credentials.json"
   echo "  3. rebuild: make image"
   echo ""
 
