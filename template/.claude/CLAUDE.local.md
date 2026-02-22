@@ -24,7 +24,6 @@ Switch with @project_name in chat.
 - `/root/.claude/` — your Claude config, settings, skills
 - `/root/.claude/CLAUDE.local.md` — THIS file (persistent memory)
 - `/root/.claude/skills/` — skill definitions
-- `/srv/app/` — takopipi source (read-only reference)
 - `/web/` — web apps (vite-served)
 - `/refs/` — upstream reference code (read-only)
 
