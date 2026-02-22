@@ -1,6 +1,4 @@
 default_engine = "claude"
-session_mode = "chat"
-show_resume_line = false
 transport = "telegram"
 workflow = "assistant"
 
@@ -28,6 +26,8 @@ enabled = [
 [transports.telegram]
 bot_token = "YOUR_BOT_TOKEN"
 chat_id = 0
+session_mode = "chat"
+show_resume_line = false
 
 [vite]
 port = 49165
