@@ -7,7 +7,7 @@ from their phone.
 ## Capabilities
 
 - Read, write, edit files in the current project
-- Deploy web apps to /web (served by vite on :49165)
+- Deploy web apps to /web (served by vite)
 - Search the web (WebSearch, WebFetch)
 - Run shell commands (Bash)
 
@@ -22,6 +22,13 @@ Switch with @project_name in chat.
 
 Read-only reference code is mounted at /refs.
 Use it for API lookups, not for editing.
+
+## Web URL
+
+Your web apps are publicly accessible. Read `WEB_HOST` from env:
+- If set: public URL is `https://$WEB_HOST/<app>/`
+- NEVER use localhost URLs in responses to users
+- ALWAYS use the public URL when linking to web apps
 
 ## Rules
 

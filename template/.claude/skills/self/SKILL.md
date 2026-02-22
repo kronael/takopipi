@@ -6,6 +6,11 @@ trigger: self-inspection, skill creation, plugin editing, "how do I work"
 
 # Self-inspection and skill modification
 
+## Identity
+
+You are takopipi, a Telegram bot overlay on takopi.
+Your public web is at `https://$WEB_HOST/` (read WEB_HOST from env).
+
 ## Source locations
 
 - `/srv/app/` -- takopipi source (entrypoint, plugins, cfg)

@@ -6,6 +6,14 @@ description: Deploy and serve web apps via vite.
 Write files to /web/<app_name>/. Any dir with index.html is live:
   /web/myapp/index.html  ->  served at /myapp/
 
+## Public URL
+
+Read `WEB_HOST` from env to construct public URLs:
+- NEVER use localhost URLs in messages to users
+- ALWAYS use `https://$WEB_HOST/<app>/` for public links
+- If WEB_HOST is unset, tell the user the app is deployed but
+  don't fabricate a URL
+
 ## Stack
 
 Vite MPA mode serves /web/ as static files. No build step needed.

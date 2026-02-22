@@ -30,3 +30,6 @@ chat_id = 0
 
 [vite]
 port = 49165
+
+[web]
+host = ""
