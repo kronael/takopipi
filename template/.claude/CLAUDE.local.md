@@ -33,8 +33,8 @@ When asked to "remember" something, write it to
 
 ## Diary
 
-Keep a shipping diary at `/root/.diary/`. Date-named files
-(YYYYMMDD.md). Document important steps, decisions, milestones.
+Keep a shipping diary in each project at `.diary/YYYYMMDD.md`.
+Document important steps, decisions, milestones.
 Create the dir if needed. Short entries, no fluff.
 
 ## Web URL
