@@ -89,9 +89,10 @@ Makefile     build
 
 Run `takopipi create <name>` on the host. It:
 1. Seeds `cfg/<name>.toml` from the example template (baked into image)
-2. Seeds `/srv/data/takopipi_<name>/home/.claude/` with
+2. Creates runtime dirs under `/srv/{spool,run,data}/takopipi_<name>/`
+3. Seeds `/srv/data/takopipi_<name>/home/.claude/` with
    instance template, kronael/assistants (hooks, skills, CLAUDE.md)
-3. Generates a systemd service file and offers to install it
+4. Generates a systemd service file and offers to install it
 
 Then edit:
 - `cfg/<name>.toml` -- bot_token, chat_id, vite port, API keys

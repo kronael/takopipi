@@ -46,6 +46,7 @@ with 1h timeout. Validates file exists before spawning.
 ```
 takopipi create <name>
   -> cp seed/example/takopi.toml -> cfg/<name>.toml
+  -> mkdir /srv/{spool,run,data}/takopipi_<name>
   -> seed /srv/data/takopipi_<name>/home/.claude/ with:
      - instance template (seed/example/.claude/)
      - kronael/assistants: CLAUDE.md, hooks, skills,
@@ -59,7 +60,7 @@ takopipi <instance>
   -> remove stale lock file
   -> read [vite] port from config (default 49165)
   -> takopi claude &  (background)
-  -> vite --host 0.0.0.0 --port <configured>  (restart loop)
+  -> cd /web && vite --host 0.0.0.0 --port <configured>  (restart loop)
   -> trap SIGINT/SIGTERM, wait
 ```
 
@@ -69,6 +70,9 @@ takopipi <instance>
 host                                     container
 /srv/data/takopipi_<name>/home        -> /root
 /srv/data/takopipi_<name>/web         -> /web
+/srv/spool/takopipi_<name>            -> /srv/spool/takopipi_<name>
+/srv/run/takopipi_<name>              -> /srv/run/takopipi_<name>
+~/.claude/.credentials.json           -> /root/.claude/.credentials.json (ro)
 ```
 
 `/root` covers `.claude` (skills, hooks, credentials) and `.takopi`
@@ -90,6 +94,7 @@ cfg/
           SKILL.md            web deployment skill template
           template/           web project scaffold
         self/SKILL.md         self-inspection + skill creation
+        self-inspect/SKILL.md source browsing skill
   <instance>.toml             gitignored; per-instance config
 ```
 
