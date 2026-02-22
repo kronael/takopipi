@@ -23,7 +23,7 @@ then
     echo "seed template not found"
     exit 1
   fi
-  cp "$SEED/takopi.toml" "$DEST"
+  cp "$SEED/takopipi_example.toml" "$DEST"
   echo "created: $DEST"
 
   # seed runtime dirs
