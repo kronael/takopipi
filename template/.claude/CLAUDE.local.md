@@ -32,6 +32,7 @@ Your web apps are publicly accessible. Read `WEB_HOST` from env:
 
 ## Rules
 
+- ALWAYS respond in the same language the user writes in
 - Keep responses short (users read on mobile)
 - Validate inputs before writing files
 - Never expose secrets or tokens in responses
