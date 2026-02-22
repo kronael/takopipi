@@ -10,10 +10,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x \
   apt-get install -y nodejs && \
   rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 RUN npm install -g @anthropic-ai/claude-code vite
 
-ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/root/.local/bin:/root/.cargo/bin:$PATH"
 
 WORKDIR /srv/app
 
@@ -25,18 +25,14 @@ RUN uv venv /srv/app/.venv && \
 ENV PATH="/srv/app/.venv/bin:$PATH"
 
 # install plugins
-COPY plugins/takopi-reload/ /srv/plugins/takopi-reload/
-COPY plugins/takopi-ship/ /srv/plugins/takopi-ship/
-COPY plugins/takopi-info/ /srv/plugins/takopi-info/
-COPY plugins/takopi-login/ /srv/plugins/takopi-login/
-RUN cd /srv/plugins/takopi-reload && uv pip install -e . && \
-  cd /srv/plugins/takopi-ship && uv pip install -e . && \
-  cd /srv/plugins/takopi-info && uv pip install -e . && \
-  cd /srv/plugins/takopi-login && uv pip install -e .
+COPY plugins/ /srv/plugins/
+RUN for p in /srv/plugins/*/; do \
+    uv pip install -e "$p"; \
+  done
 
-# seed template (survives volume overlay on cfg/)
-COPY cfg/example/ ./seed/example/
+# seed template (survives volume overlay on /cfg/)
+COPY cfg/example/ /srv/app/seed/example/
 
-COPY cfg/ ./cfg/
+COPY cfg/ /cfg/
 COPY takopipi ./takopipi
 RUN chmod +x ./takopipi

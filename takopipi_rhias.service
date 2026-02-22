@@ -1,0 +1,60 @@
+# takopipi_rhias.service - standalone systemd unit
+#
+# Runs takopipi instance "rhias" in docker.
+#
+# Mount strategy:
+#   /srv/data/takopipi_rhias/cfg -> /root/.claude  (RW, persistent claude config)
+#   /srv/spool/rhias/claude-sessions -> /root/.claude/projects  (RW, session state)
+#   /srv/spool/rhias/.takopi -> /root/.takopi  (RW, takopi runtime)
+#   /srv/spool/rhias/projects -> /projects  (RW, project workspace)
+#   /home/onvos/app -> /workspace  (RO, source reference)
+#   /srv/data/rhias/web -> /web  (RW, web apps)
+#
+# Install:
+#   cp takopipi_rhias.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now takopipi_rhias
+
+[Unit]
+Description=Docker service takopi_rhias
+After=docker.service
+Requires=docker.service
+
+[Service]
+StartLimitInterval=0
+StartLimitBurst=100
+RestartSec=1
+TimeoutStartSec=infinity
+Restart=always
+
+ExecStartPre=-/bin/bash -c '/usr/bin/docker stop %n >/dev/null 2>&1'
+ExecStartPre=-/bin/bash -c '/usr/bin/docker rm -f %n >/dev/null 2>&1'
+ExecStop=/bin/bash -c '/usr/bin/docker rm -f %n >/dev/null 2>&1'
+ExecStart=/usr/bin/docker run -i --rm --name %n \
+    --network=host \
+    -v /srv/spool/takopi_rhias:/srv/spool/takopi_rhias \
+    -v /srv/run/takopi_rhias:/srv/run/takopi_rhias \
+    -e "HEALTHCHECK_CMD=chkp-monit -n takopi_rhias" \
+    -e "SERVICE_NAME=takopi_rhias" \
+    -e "SERVICE_IMAGE=takopipi" \
+    -e "SERVICE_FLAVOR=" \
+    -e "SERVICE_ARGS=" \
+    -e "SERVICE_SERVER=hel1v5" \
+    -e "SERVICE_CONFIG=/cfg/hel1v5/takopi_rhias.toml" \
+    --cap-add=sys_nice \
+    -v /srv/spool/rhias:/srv/spool/rhias \
+    -v /srv/run/rhias:/srv/run/rhias \
+    -v /srv/spool/rhias/.takopi:/root/.takopi \
+    -v /srv/spool/rhias/projects:/projects \
+    -v /home/onvos/app:/workspace:ro \
+    -v /srv/data/takopipi_rhias/cfg:/root/.claude \
+    -v /srv/spool/rhias/claude-sessions:/root/.claude/projects \
+    -v /srv/data/rhias/web:/web \
+    takopipi \
+    ./takopipi rhias /cfg/hel1v5/takopi_rhias.toml
+
+SyslogIdentifier=takopi_rhias
+SyslogFacility=local3
+
+[Install]
+WantedBy=default.target

@@ -10,14 +10,14 @@ then
     echo "usage: takopipi create <name>"
     exit 1
   fi
-  DEST="cfg/${NAME}"
+  DEST="/cfg/${NAME}"
   if [ -d "$DEST" ]
   then
     echo "already exists: $DEST"
     exit 1
   fi
   SEED="/srv/app/seed/example"
-  [ -d "$SEED" ] || SEED="cfg/example"
+  [ -d "$SEED" ] || SEED="/cfg/example"
   if [ ! -d "$SEED" ]
   then
     echo "seed template not found"
@@ -25,11 +25,56 @@ then
   fi
   cp -r "$SEED" "$DEST"
   echo "created: $DEST"
+
+  # seed external data dir for host-mount claude config
+  DATA_DIR="/srv/data/takopipi_${NAME}/cfg"
+  if [ ! -d "$DATA_DIR" ]
+  then
+    echo "seeding: $DATA_DIR"
+    mkdir -p "$DATA_DIR"
+
+    # copy claude config from instance seed
+    if [ -d "$DEST/.claude" ]
+    then
+      cp -r "$DEST/.claude/." "$DATA_DIR/"
+    fi
+
+    # seed global config from assistants repo
+    tmp=$(mktemp -d)
+    git clone --depth 1 \
+      https://github.com/kronael/assistants "$tmp" \
+      2>/dev/null
+    BASE="$tmp/claude-template/global"
+    cp "$BASE/CLAUDE.md" "$DATA_DIR/CLAUDE.md"
+    mkdir -p "$DATA_DIR/hooks"
+    cp -r "$BASE/hooks/." "$DATA_DIR/hooks/"
+    mkdir -p "$DATA_DIR/skills"
+    cp -rn "$BASE/skills/." "$DATA_DIR/skills/"
+    rm -rf "$tmp"
+
+    # credentials template
+    mkdir -p "$DATA_DIR"
+    cat > "$DATA_DIR/credentials.json.example" <<CRED
+{
+  "claudeAiOauth": {
+    "accessToken": "",
+    "refreshToken": "",
+    "expiresAt": 0
+  }
+}
+CRED
+    echo "seeded: $DATA_DIR"
+  else
+    echo "exists: $DATA_DIR (skipping seed)"
+  fi
+
   echo ""
   echo "next:"
-  echo "  1. edit $DEST/takopi.toml  (set bot_token, chat_id, api keys)"
-  echo "  2. edit $DEST/.claude/CLAUDE.local.md  (bot context)"
-  echo "  3. run: takopipi $NAME"
+  echo "  1. cp $DEST/takopi.toml /cfg/<server>/takopi_${NAME}.toml"
+  echo "  2. edit /cfg/<server>/takopi_${NAME}.toml  (bot_token, chat_id)"
+  echo "  3. edit $DEST/.claude/CLAUDE.local.md  (bot context)"
+  echo "  4. copy credentials to $DATA_DIR/credentials.json"
+  echo "  5. run: takopipi $NAME"
   exit 0
 fi
 
@@ -42,7 +87,9 @@ then
 fi
 
 INSTANCE="$1"
-CONFIG="cfg/${INSTANCE}/takopi.toml"
+
+# config: explicit path as $2, or /cfg/<instance>/takopi.toml
+CONFIG="${2:-/cfg/${INSTANCE}/takopi.toml}"
 
 if [ ! -f "$CONFIG" ]
 then
@@ -54,7 +101,7 @@ mkdir -p /root/.takopi
 cp "$CONFIG" /root/.takopi/takopi.toml
 
 # --- seed .claude from instance config ---
-CLAUDE_SRC="cfg/${INSTANCE}/.claude"
+CLAUDE_SRC="/cfg/${INSTANCE}/.claude"
 mkdir -p /root/.claude
 
 if [ -d "$CLAUDE_SRC" ]
