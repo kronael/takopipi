@@ -6,8 +6,7 @@ __pycache__/
 dist/
 .env
 cfg/takopi.toml
-cfg/takopipi_krons.toml
-cfg/takopipi_iha.toml
+cfg/takopipi_*.toml
 .bash_profile
 .bashrc
 .gitconfig
