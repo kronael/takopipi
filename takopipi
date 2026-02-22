@@ -128,6 +128,13 @@ done
 
 rm -f /root/.takopi/takopi.lock
 
+# read vite port from config (default 49165)
+VITE_PORT=$(python3 -c "
+import tomllib
+c = tomllib.load(open('$config', 'rb'))
+print(c.get('vite', {}).get('port', 49165))
+")
+
 # --- run both ---
 takopi claude &
 TAKOPI=$!
@@ -136,7 +143,7 @@ mkdir -p /srv/app/tmp
 
 (while true
 do
-  npx vite --host 0.0.0.0 --port 49165 &
+  npx vite --host 0.0.0.0 --port "$VITE_PORT" &
   echo $! > /srv/app/tmp/vite.pid
   wait $!
   sleep 1
