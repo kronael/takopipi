@@ -1,4 +1,6 @@
 default_engine = "claude"
+session_mode = "chat"
+show_resume_line = false
 transport = "telegram"
 workflow = "assistant"
 
