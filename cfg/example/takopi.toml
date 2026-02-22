@@ -30,8 +30,7 @@ allowed_tools = [
 enabled = [
   "takopi",
   "takopi-reload",
-  "takopi-demiurg",
+  "takopi-ship",
   "takopi-info",
-  "takopi-refresh",
   "takopi-login",
 ]

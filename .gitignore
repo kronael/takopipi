@@ -5,8 +5,8 @@ __pycache__/
 .ruff_cache/
 dist/
 .env
-cfg/takopi.toml
-cfg/takopipi_*.toml
+cfg/*/
+!cfg/example/
 .bash_profile
 .bashrc
 .gitconfig

@@ -3,4 +3,5 @@ name = "takopi-reload"
 version = "0.1.0"
 
 [project.entry-points."takopi.command_backends"]
-reload = "reload_backend:BACKEND"
+reload = "reload_backend:RELOAD_BACKEND"
+refresh = "reload_backend:REFRESH_BACKEND"

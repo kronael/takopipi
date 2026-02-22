@@ -26,18 +26,16 @@ ENV PATH="/srv/app/.venv/bin:$PATH"
 
 # install plugins
 COPY plugins/takopi-reload/ /srv/plugins/takopi-reload/
-COPY plugins/takopi-demiurg/ /srv/plugins/takopi-demiurg/
+COPY plugins/takopi-ship/ /srv/plugins/takopi-ship/
 COPY plugins/takopi-info/ /srv/plugins/takopi-info/
-COPY plugins/takopi-refresh/ /srv/plugins/takopi-refresh/
 COPY plugins/takopi-login/ /srv/plugins/takopi-login/
 RUN cd /srv/plugins/takopi-reload && uv pip install -e . && \
-  cd /srv/plugins/takopi-demiurg && uv pip install -e . && \
+  cd /srv/plugins/takopi-ship && uv pip install -e . && \
   cd /srv/plugins/takopi-info && uv pip install -e . && \
-  cd /srv/plugins/takopi-refresh && uv pip install -e . && \
   cd /srv/plugins/takopi-login && uv pip install -e .
 
-# install demiurg cli
-RUN uv tool install git+https://github.com/kronael/demiurg.git
+# seed template (survives volume overlay on cfg/)
+COPY cfg/example/ ./seed/example/
 
 COPY cfg/ ./cfg/
 COPY takopipi ./takopipi

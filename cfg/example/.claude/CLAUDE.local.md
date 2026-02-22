@@ -11,15 +11,6 @@ from their phone.
 - Search the web (WebSearch, WebFetch)
 - Run shell commands (Bash)
 
-## Web Deployment
-
-Write files to /web/<app_name>/.
-Each subdirectory with index.html becomes a live page.
-Vite auto-reloads on change. No restart needed.
-
-To restart vite: `kill $(cat /srv/app/tmp/vite.pid)`
-The entrypoint loop will respawn it automatically.
-
 ## Projects
 
 Auto-discovered from /web on startup:

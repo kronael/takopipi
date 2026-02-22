@@ -2,14 +2,14 @@
 
 Plugin overlay on banteg/takopi v0.22.1.
 
-## Dockerfile Stages (single stage)
+## Dockerfile (single stage)
 
 1. python:3.14-slim + node 22 + git
 2. uv + claude-code (npm global)
 3. takopi from upstream git (pinned v0.22.1)
 4. plugins installed via `uv pip install -e` per plugin
-5. demiurg CLI via `uv tool install`
-6. config, CLAUDE.md, entrypoint copied last
+5. seed template baked at `/srv/app/seed/example/`
+6. cfg/, entrypoint copied last
 
 ## Plugin Protocol
 
@@ -32,40 +32,75 @@ Lists projects, commands, web deploy URL.
 **reload** -- `sys.exit(0)` triggers container restart.
 Entrypoint re-discovers projects on next boot.
 
-**refresh** -- `pkill -f vite` kills the dev server;
-entrypoint loop auto-restarts it.
+**refresh** -- part of takopi-reload package.
+Kills vite by PID; entrypoint loop auto-restarts it.
 
 **login** -- authenticates claude-code inside container.
 OAuth URL relay or direct API key.
 
-**demiurg** -- `asyncio.create_subprocess_exec("demiurg")`
+**ship** -- `uvx --from git+https://github.com/kronael/ship ship <file>`
 with 1h timeout. Validates file exists before spawning.
 
 ## Entrypoint Flow
 
 ```
-entrypoint
-  -> mkdir -p /root/.takopi
-  -> copy config to /root/.takopi/takopi.toml
-  -> add /web root as project "web"
-  -> scan /web/*/ for subdir projects
-  -> symlink CLAUDE.md into each web app dir
-  -> append [projects.<name>] sections to config
+takopipi create <name>
+  -> cp seed/example -> cfg/<name>/
+  -> print setup instructions
+
+takopipi <instance>
+  -> cp cfg/<instance>/takopi.toml -> /root/.takopi/takopi.toml
+  -> seed .claude from cfg/<instance>/.claude/:
+     - CLAUDE.local.md: always overwrite (takopipi authoritative)
+     - settings.json: always overwrite (outputStyle etc)
+     - output-styles/: always overwrite (takopipi authoritative)
+     - skills/: no-overwrite copy (instance skills win)
+  -> first run: seed from kronael/assistants:
+     - CLAUDE.md, hooks, skills
+  -> auto-discover /web projects, append to config
   -> remove stale lock file
   -> takopi claude &  (background)
-  -> mkdir -p /srv/app/tmp
   -> vite --host 0.0.0.0 --port 49165  (restart loop)
-  -> write inner vite PID to /srv/app/tmp/vite.pid
   -> trap SIGINT/SIGTERM, wait
 ```
 
 ## Container Mounts
 
 ```
-host                              container
-/srv/spool/takopi/.takopi      -> /root/.takopi
-/home/<user>/app               -> /refs:ro
-/home/<user>/.claude/CLAUDE.md -> /root/.claude/CLAUDE.md:ro
-/home/<user>/.claude/skills    -> /root/.claude/skills:ro
-/srv/data/takopi/web           -> /web
+host                                        container
+/srv/data/takopi_<name>/cfg              -> /srv/app/cfg
+/srv/data/takopi_<name>/home/.claude     -> /root/.claude
+/srv/data/takopi_<name>/data/web         -> /web
+/srv/spool/takopi_<name>/.takopi         -> /root/.takopi
+/home/<user>/app                         -> /refs:ro
 ```
+
+## cfg Layout
+
+```
+cfg/
+  example/                    committed; seed template
+    takopi.toml               example config
+    .claude/
+      CLAUDE.local.md         bot context (overwritten each start)
+      settings.json           outputStyle=telegram (overwritten each start)
+      output-styles/
+        telegram.md           short plain-text for mobile chat
+      skills/
+        web/SKILL.md          web deployment skill
+        self/SKILL.md         self-inspection + skill creation
+  <instance>/                 gitignored; per-instance
+```
+
+## Claude-code Layering
+
+All native claude-code features, no custom injection:
+
+- `~/.claude/CLAUDE.md` -- dev wisdom, seeded from kronael/assistants
+- `~/.claude/CLAUDE.local.md` -- bot context, overwritten each start
+- `~/.claude/output-styles/telegram.md` -- auto-activated each start
+- `~/.claude/skills/` -- no-overwrite seed (takopipi skills win)
+- `~/.claude/hooks/` -- seeded from kronael/assistants on first run
+
+CLAUDE.local.md and output-styles are native claude-code features:
+auto-loaded, no hooks needed, deterministic every prompt.

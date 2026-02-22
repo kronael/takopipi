@@ -7,7 +7,7 @@ Telegram-based AI agent.
 ## What you get
 
 - Telegram bot that dispatches coding agents to repositories
-- Custom plugins: login, reload, refresh, demiurg, info
+- Custom plugins: login, reload, refresh, ship, info
 - Built-in vite dev server for web apps with auto-reload
 - Multi-instance support (run several bots from one image)
 - Docker packaging with auto-discovery of web projects
@@ -15,35 +15,49 @@ Telegram-based AI agent.
 ## Quick Start
 
 ```sh
-# 1. copy and edit config
-cp cfg/takopi.toml.example cfg/takopipi_mybot.toml
-# set bot_token, chat_id, api keys in the new file
-
-# 2. build
+# 1. build
 make build
 
-# 3. run
-docker run -v /srv/data/takopi:/srv/data/takopi \
+# 2. one-time: seed credentials into data volume
+mkdir -p /srv/data/takopi_mybot/home/.claude
+cp ~/.claude/.credentials.json /srv/data/takopi_mybot/home/.claude/
+
+# 3. one-time: create instance config (cfg volume needed)
+docker run --rm \
+  -v /srv/data/takopi_mybot/cfg:/srv/app/cfg \
+  takopipi takopipi create mybot
+# edit /srv/data/takopi_mybot/cfg/mybot/takopi.toml
+
+# 4. run (all volume mounts every time)
+docker run \
+  -v /srv/data/takopi_mybot/cfg:/srv/app/cfg \
+  -v /srv/data/takopi_mybot/home/.claude:/root/.claude \
+  -v /srv/data/takopi_mybot/data/web:/web \
+  -v /srv/spool/takopi_mybot/.takopi:/root/.takopi \
+  -v /home/<user>/app:/refs:ro \
   takopipi ./takopipi mybot
 ```
 
-The instance name maps to `cfg/takopipi_<instance>.toml`.
+Volume mounts are not optional -- they must appear on every
+`docker run`. The one-time steps only populate the volume dirs
+before first start.
 
 ## Plugins
 
-| Command | Description |
-|---------|-------------|
-| `/start`, `/help` | welcome and command list |
-| `/reload` | restart container (re-discovers projects) |
-| `/refresh` | restart vite dev server |
-| `/demiurg <file>` | spawn demiurg design session |
-| `/login` | authenticate user |
+- `/start`, `/help` -- welcome and command list
+- `/reload` -- restart container (re-discovers projects)
+- `/refresh` -- restart vite dev server
+- `/ship <file>` -- run [ship](https://github.com/kronael/ship) on a design file
+- `/login` -- authenticate user
+
+`/ship design.txt` runs `uvx --from git+https://github.com/kronael/ship ship <file>`.
+`uvx` fetches and caches the tool on first use via uv (already installed).
 
 ## Web serving
 
-Vite runs inside the container on port 49165, serving
-`/srv/data/takopi/web/`. Each subdirectory with an
-`index.html` becomes a live page at `your-domain/<name>/`.
+Vite runs inside the container on port 49165, serving `/web/`.
+Each subdirectory with an `index.html` becomes a live page at
+`your-domain/<name>/`.
 
 File changes auto-reload -- no restart needed.
 
@@ -56,13 +70,13 @@ docker run ... takopipi ./takopipi prod
 docker run ... takopipi ./takopipi staging
 ```
 
-Each reads `cfg/takopipi_<name>.toml`.
+Each instance gets isolated volumes under `/srv/data/takopi_<name>/`.
 
 ## Layout
 
 ```
 plugins/     custom command plugins
-cfg/         config templates and agent context
+cfg/         config templates (example/) and per-instance (gitignored)
 takopipi     container entrypoint
 Dockerfile   single-stage build
 Makefile     build
@@ -70,9 +84,12 @@ Makefile     build
 
 ## Config
 
-Copy `cfg/takopi.toml.example` and set:
-- `bot_token` -- Telegram bot token from @BotFather
-- `chat_id` -- allowed Telegram chat ID
-- API keys for whichever LLM provider you use
+Use `takopipi create <name>` to seed a new instance config from
+the example template. Then edit:
+- `takopi.toml` -- bot_token, chat_id, API keys
+- `.claude/CLAUDE.local.md` -- bot context (overwritten each start)
+
+The entrypoint auto-activates the `telegram` output style and
+seeds CLAUDE.md + hooks from kronael/assistants on first run.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for internals.

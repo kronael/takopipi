@@ -1,15 +1,41 @@
 #!/bin/bash
 set -e
 
+# --- create subcommand ---
+if [ "${1:-}" = "create"
+then
+  NAME="${2:-}"
+  if [ -z "$NAME" ]
+  then
+    echo "usage: takopipi create <name>"
+    exit 1
+  fi
+  DEST="/srv/app/cfg/${NAME}"
+  if [ -d "$DEST" ]
+  then
+    echo "already exists: $DEST"
+    exit 1
+  fi
+  cp -r /srv/app/seed/example "$DEST"
+  echo "created: $DEST"
+  echo ""
+  echo "next:"
+  echo "  1. edit $DEST/takopi.toml  (set bot_token, chat_id, api keys)"
+  echo "  2. edit $DEST/.claude/CLAUDE.local.md  (bot context)"
+  echo "  3. run: takopipi $NAME"
+  exit 0
+fi
+
+# --- instance run ---
 if [ -z "${1:-}" ]
 then
   echo "usage: takopipi <instance>"
-  echo "  e.g. takopipi mybot"
+  echo "       takopipi create <name>"
   exit 1
 fi
 
 INSTANCE="$1"
-CONFIG="/srv/app/cfg/takopipi_${INSTANCE}.toml"
+CONFIG="/srv/app/cfg/${INSTANCE}/takopi.toml"
 
 if [ ! -f "$CONFIG" ]
 then
@@ -20,6 +46,49 @@ fi
 mkdir -p /root/.takopi
 cp "$CONFIG" /root/.takopi/takopi.toml
 
+# --- seed .claude from instance config ---
+CLAUDE_SRC="/srv/app/cfg/${INSTANCE}/.claude"
+mkdir -p /root/.claude
+
+if [ -d "$CLAUDE_SRC" ]
+then
+  # always overwrite CLAUDE.local.md (takopipi authoritative)
+  cp "$CLAUDE_SRC/CLAUDE.local.md" /root/.claude/CLAUDE.local.md \
+    2>/dev/null || true
+
+  # seed skills no-overwrite (instance skills win)
+  if [ -d "$CLAUDE_SRC/skills" ]
+  then
+    mkdir -p /root/.claude/skills
+    cp -rn "$CLAUDE_SRC/skills/." /root/.claude/skills/
+  fi
+
+  # always overwrite output styles (takopipi authoritative)
+  if [ -d "$CLAUDE_SRC/output-styles" ]
+  then
+    mkdir -p /root/.claude/output-styles
+    cp -r "$CLAUDE_SRC/output-styles/." /root/.claude/output-styles/
+  fi
+
+  # always overwrite settings.json (outputStyle etc)
+  [ -f "$CLAUDE_SRC/settings.json" ] && \
+    cp "$CLAUDE_SRC/settings.json" /root/.claude/settings.json
+fi
+
+# seed from kronael/assistants on first run
+if [ ! -f /root/.claude/hooks/local.py ]
+then
+  tmp=$(mktemp -d)
+  git clone --depth 1 https://github.com/kronael/assistants "$tmp"
+  BASE="$tmp/claude-template/global"
+  cp "$BASE/CLAUDE.md" /root/.claude/CLAUDE.md
+  mkdir -p /root/.claude/hooks
+  cp -r "$BASE/hooks/." /root/.claude/hooks/
+  mkdir -p /root/.claude/skills
+  cp -rn "$BASE/skills/." /root/.claude/skills/
+  rm -rf "$tmp"
+fi
+
 # auto-discover web apps from /web
 config=/root/.takopi/takopi.toml
 sed -i '/^\[projects\./,$d' "$config"
@@ -27,7 +96,6 @@ sed -i '/^\[projects\./,$d' "$config"
 # /web root as project "web"
 if [ -d /web ]
 then
-  ln -sf /srv/app/cfg/CLAUDE.md /web/CLAUDE.md
   cat >> "$config" <<EOF
 
 [projects.web]
@@ -42,7 +110,6 @@ do
   [ -d "$app" ] || continue
   name=$(basename "$app")
   [ "$name" = "node_modules" ] && continue
-  ln -sf /srv/app/cfg/CLAUDE.md "$app/CLAUDE.md"
 
   cat >> "$config" <<EOF
 

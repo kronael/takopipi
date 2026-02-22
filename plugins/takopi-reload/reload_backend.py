@@ -1,23 +1,45 @@
-"""reload command: exit process to trigger container restart."""
+"""reload/refresh commands: restart bot or vite."""
 
+import asyncio
 import sys
+from pathlib import Path
 
 from takopi.api import CommandContext
 from takopi.api import CommandResult
+
+VIT_PID = Path("/srv/app/tmp/vite.pid")
 
 
 class ReloadCommand:
     """exit process to reload projects via container restart."""
 
     id = "reload"
-    description = "reload projects"
+    description = "reload projects (restarts container)"
 
     async def handle(
         self, ctx: CommandContext
     ) -> CommandResult | None:
-        """exit process cleanly."""
-        await ctx.executor.send("reloading projects...")
+        await ctx.executor.send("reloading...")
         sys.exit(0)
 
 
-BACKEND = ReloadCommand()
+class RefreshCommand:
+    """restart vite dev server by PID."""
+
+    id = "refresh"
+    description = "restart web server"
+
+    async def handle(
+        self, ctx: CommandContext
+    ) -> CommandResult | None:
+        try:
+            pid = int(VIT_PID.read_text().strip())
+        except (FileNotFoundError, ValueError):
+            return CommandResult(text="vite pid not found")
+        proc = await asyncio.create_subprocess_exec("kill", str(pid))
+        await proc.wait()
+        return CommandResult(text="vite restarting")
+
+
+RELOAD_BACKEND = ReloadCommand()
+REFRESH_BACKEND = RefreshCommand()
