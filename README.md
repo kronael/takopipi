@@ -12,6 +12,10 @@ Telegram-based AI agent.
 - Multi-instance support (run several bots from one image)
 - Docker packaging with auto-discovery of web projects
 
+## Live example
+
+https://krons.fiu.wtf
+
 ## Quick Start
 
 ```sh
