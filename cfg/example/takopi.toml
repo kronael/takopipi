@@ -1,4 +1,5 @@
 default_engine = "claude"
+show_resume_line = false
 transport = "telegram"
 workflow = "assistant"
 
