@@ -26,6 +26,11 @@ then
   cp "$SEED/takopi.toml" "$DEST"
   echo "created: $DEST"
 
+  # seed runtime dirs
+  mkdir -p "/srv/spool/takopipi_${NAME}/projects"
+  mkdir -p "/srv/run/takopipi_${NAME}"
+  mkdir -p "/srv/data/takopipi_${NAME}/web"
+
   # seed external data dir for host-mount home
   DATA_DIR="/srv/data/takopipi_${NAME}/home"
   if [ ! -d "$DATA_DIR" ]
@@ -194,7 +199,7 @@ mkdir -p /srv/app/tmp
 
 (while true
 do
-  npx vite --host 0.0.0.0 --port "$VITE_PORT" &
+  npx vite --root /web --host 0.0.0.0 --port "$VITE_PORT" &
   echo $! > /srv/app/tmp/vite.pid
   wait $!
   sleep 1
