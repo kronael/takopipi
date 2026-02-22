@@ -10,8 +10,8 @@ then
     echo "usage: takopipi create <name>"
     exit 1
   fi
-  DEST="/cfg/${NAME}"
-  if [ -d "$DEST" ]
+  DEST="/cfg/${NAME}.toml"
+  if [ -f "$DEST" ]
   then
     echo "already exists: $DEST"
     exit 1
@@ -23,7 +23,7 @@ then
     echo "seed template not found"
     exit 1
   fi
-  cp -r "$SEED" "$DEST"
+  cp "$SEED/takopi.toml" "$DEST"
   echo "created: $DEST"
 
   # seed external data dir for host-mount home
@@ -34,9 +34,9 @@ then
     mkdir -p "$DATA_DIR/.claude"
 
     # copy claude config from instance seed
-    if [ -d "$DEST/.claude" ]
+    if [ -d "$SEED/.claude" ]
     then
-      cp -r "$DEST/.claude/." "$DATA_DIR/.claude/"
+      cp -r "$SEED/.claude/." "$DATA_DIR/.claude/"
     fi
 
     # seed global config from assistants repo
@@ -88,9 +88,9 @@ ExecStop=/usr/bin/docker rm -f %n
 ExecStart=/usr/bin/docker run -i --rm --name %n \
     --network=host \
     -v /srv/data/takopipi_${NAME}/home:/root \
-    -v /srv/data/${NAME}/web:/web \
+    -v /srv/data/takopipi_${NAME}/web:/web \
     takopipi \
-    ./takopipi ${NAME} /cfg/takopipi_${NAME}.toml
+    ./takopipi ${NAME} /cfg/${NAME}.toml
 
 SyslogIdentifier=takopipi_${NAME}
 SyslogFacility=local3
@@ -102,7 +102,7 @@ SVC
 
   echo ""
   echo "next:"
-  echo "  1. edit $DEST/takopi.toml  (bot_token, chat_id)"
+  echo "  1. edit cfg/${NAME}.toml  (bot_token, chat_id)"
   echo "  2. copy credentials to $DATA_DIR/.claude/credentials.json"
   echo "  3. rebuild: make image"
   echo ""
@@ -134,8 +134,8 @@ fi
 
 INSTANCE="$1"
 
-# config: explicit path as $2, or /cfg/<instance>/takopi.toml
-CONFIG="${2:-/cfg/${INSTANCE}/takopi.toml}"
+# config: explicit path as $2, or /cfg/<instance>.toml
+CONFIG="${2:-/cfg/${INSTANCE}.toml}"
 
 if [ ! -f "$CONFIG" ]
 then

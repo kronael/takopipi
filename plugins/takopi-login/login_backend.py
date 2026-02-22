@@ -44,7 +44,8 @@ class LoginCommand:
             return CommandResult(text=f"failed to start claude: {e}")
         url = await self._read_url()
         if not url:
-            self._proc.kill()
+            if self._proc.returncode is None:
+                self._proc.kill()
             self._proc = None
             return CommandResult(text="failed to get auth url")
         self._notify = asyncio.create_task(self._wait(ctx))

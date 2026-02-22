@@ -45,15 +45,16 @@ with 1h timeout. Validates file exists before spawning.
 
 ```
 takopipi create <name>
-  -> cp seed/example -> cfg/<name>/
-  -> seed external data dir .claude with config from:
-     - instance template (cfg/<name>/.claude/)
+  -> cp seed/example/takopi.toml -> cfg/<name>.toml
+  -> seed /srv/data/takopipi_<name>/home/.claude/ with:
+     - instance template (seed/example/.claude/)
      - kronael/assistants: CLAUDE.md, hooks, skills,
        credentials template
-  -> print setup instructions
+  -> generate systemd service file
+  -> prompt to install service
 
 takopipi <instance>
-  -> cp cfg/<instance>/takopi.toml -> /root/.takopi/takopi.toml
+  -> cp cfg/<instance>.toml -> /root/.takopi/takopi.toml
   -> auto-discover /web projects, append to config
   -> remove stale lock file
   -> read [vite] port from config (default 49165)
@@ -65,13 +66,13 @@ takopipi <instance>
 ## Container Mounts
 
 ```
-host                                        container
-/srv/data/takopipi_<name>/cfg            -> /srv/app/cfg
-/srv/data/takopipi_<name>/home/.claude   -> /root/.claude
-/srv/data/takopipi_<name>/data/web       -> /web
-/srv/spool/takopipi_<name>/.takopi       -> /root/.takopi
-/home/<user>/app                         -> /refs:ro
+host                                     container
+/srv/data/takopipi_<name>/home        -> /root
+/srv/data/takopipi_<name>/web         -> /web
 ```
+
+`/root` covers `.claude` (skills, hooks, credentials) and `.takopi`
+(runtime state). `/cfg/` is baked into the image, not mounted.
 
 ## cfg Layout
 
@@ -89,7 +90,7 @@ cfg/
           SKILL.md            web deployment skill template
           template/           web project scaffold
         self/SKILL.md         self-inspection + skill creation
-  <instance>/                 gitignored; per-instance
+  <instance>.toml             gitignored; per-instance config
 ```
 
 ## Claude-code Layering

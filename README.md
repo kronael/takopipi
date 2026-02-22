@@ -31,15 +31,15 @@ make image
 ./takopipi create mybot
 
 # 3. configure
-#   edit cfg/mybot/takopi.toml  (bot_token, chat_id)
+#   edit cfg/mybot.toml  (bot_token, chat_id)
 #   copy credentials to /srv/data/takopipi_mybot/home/.claude/credentials.json
 #   rebuild: make image
 
 # 4. run via generated service file, or manually:
 docker run \
   -v /srv/data/takopipi_mybot/home:/root \
-  -v /srv/data/mybot/web:/web \
-  takopipi ./takopipi mybot /cfg/takopipi_mybot.toml
+  -v /srv/data/takopipi_mybot/web:/web \
+  takopipi ./takopipi mybot /cfg/mybot.toml
 ```
 
 `create` generates a systemd service file and offers to install it.
@@ -88,13 +88,12 @@ Makefile     build
 ## Config
 
 Run `takopipi create <name>` on the host. It:
-1. Seeds `cfg/<name>/` from the example template (baked into image)
+1. Seeds `cfg/<name>.toml` from the example template (baked into image)
 2. Seeds `/srv/data/takopipi_<name>/home/.claude/` with
-   (hooks, skills, CLAUDE.md) from kronael/assistants
+   instance template, kronael/assistants (hooks, skills, CLAUDE.md)
 3. Generates a systemd service file and offers to install it
 
 Then edit:
-- `cfg/<name>/takopi.toml` -- bot_token, chat_id, vite port, API keys
-- `cfg/<name>/.claude/CLAUDE.local.md` -- bot context
+- `cfg/<name>.toml` -- bot_token, chat_id, vite port, API keys
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for internals.
