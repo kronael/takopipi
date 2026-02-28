@@ -163,6 +163,12 @@ EOF
 done
 
 rm -f /root/.takopi/takopi.lock
+
+# sync skills from template (takopipi-specific override global)
+if [ -d /srv/app/template/.claude/skills ]
+then
+  cp -rn /srv/app/template/.claude/skills/. /root/.claude/skills/
+fi
 read -r VITE_PORT WEB_HOST <<< "$(python3 -c "
 import tomllib
 c = tomllib.load(open('$config', 'rb'))
