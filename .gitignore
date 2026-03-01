@@ -13,6 +13,7 @@ dist/
 tmp/
 log/
 cfg/*/
+cfg/*.env
 .bash_profile
 .bashrc
 .gitconfig
