@@ -188,9 +188,12 @@ print(c.get('vite', {}).get('port', 49165),
 takopi claude &
 TAKOPI=$!
 
+mkdir -p /srv/app/tmp
+
 (while true
 do
   cd /web && npx vite --host 0.0.0.0 --port "$VITE_PORT" &
+  echo $! > /srv/app/tmp/vite.pid
   wait $!
   sleep 1
 done) &
