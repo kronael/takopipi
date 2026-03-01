@@ -95,7 +95,7 @@ SVC
   echo ""
   echo "next:"
   echo "  1. edit cfg/${NAME}.toml  (bot_token, chat_id)"
-  echo "  2. copy credentials to $DATA_DIR/.claude/credentials.json"
+  echo "  2. create cfg/${NAME}.env with CLAUDE_CODE_OAUTH_TOKEN=..."
   echo "  3. rebuild: make image"
   echo ""
 
@@ -131,6 +131,14 @@ if [ ! -f "$CONFIG" ]
 then
   echo "config not found: $CONFIG"
   exit 1
+fi
+
+ENVFILE="${CONFIG%.*}.env"
+if [ -f "$ENVFILE" ]
+then
+  set -a
+  . "$ENVFILE"
+  set +a
 fi
 
 mkdir -p /root/.takopi
