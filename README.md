@@ -32,7 +32,8 @@ make image
 
 # 3. configure
 #   edit cfg/mybot.toml  (bot_token, chat_id)
-#   copy credentials to /srv/data/takopipi_mybot/home/.claude/credentials.json
+#   create cfg/mybot.env with CLAUDE_CODE_OAUTH_TOKEN=<token>
+#     (token from claude.ai account settings; fallback: mount credentials.json)
 #   rebuild: make image
 
 # 4. run via generated service file, or manually:
@@ -97,5 +98,6 @@ Run `takopipi create <name>` on the host. It:
 
 Then edit:
 - `cfg/<name>.toml` -- bot_token, chat_id, vite port, API keys
+- `cfg/<name>.env` -- CLAUDE_CODE_OAUTH_TOKEN (preferred over credentials.json mount)
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for internals.
